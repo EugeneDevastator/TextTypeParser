@@ -52,9 +52,10 @@ def addWeight(a,b,c):
     adjmat[ia,ic]+=0.1
     adjmat[ib,ic]+=1
     
-    #but also i want to know where is one sequence often than reverse
-    adjmat[ic,ia]-=0.1
-    adjmat[ic,ib]-=1
+    #but also i want to know when one sequence happens often than its reverse
+    #for that compare opposite pairs from above data.
+    #adjmat[ic,ia]-=0.1
+    #adjmat[ic,ib]-=1
 
 for f in onlyfiles:
     with open(f, 'r',  encoding='utf-8' , errors='ignore') as file:

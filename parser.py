@@ -8,9 +8,11 @@ import string
 from os import listdir
 from os.path import isfile, join
 import numpy as np
+import os, sys
 
 # set it to path with files with text.
 mypath="D:\\1\\all"
+rootPath="D:\\1\\"
 
 onlyfiles = [join(mypath, f) for f in listdir(mypath) if isfile(join(mypath, f))]
 
@@ -21,8 +23,10 @@ for c in string.printable:
     keys[c]=0
 
 # neighbor detection
-
+# keys to scan for adjacency
 pkeys = string.ascii_lowercase + " .,;"
+
+#their names for export
 xlskeys = np.asarray([*pkeys],dtype=object)
 xlskeys[-1]="semi"
 xlskeys[-2]="coma"
@@ -37,6 +41,7 @@ for k in pkeys:
     pkidx[k] = i
     i+=1
 
+#directional adj matrix f(x,y) = count of x follwed by y
 adjmat = np.zeros((len(pkeys),len(pkeys)),dtype = float)
 
 # Parsing
@@ -77,7 +82,7 @@ for f in onlyfiles:
                 a=0
                 
 # Output
-
+keyCounts = np.asarray(keys);
 
 layout1= "qwfpbjluy;'"
 layout2= "arstgmneio-"
@@ -99,6 +104,8 @@ print("done parsing" + mypath)
 # generate adjmat paste
 # sort from less to most
 
+
+# numpy keys to parse
 npkeys= np.asarray([*pkeys])
 npkeys[adjmat[1].argsort()]
 
@@ -131,3 +138,5 @@ for i in range(0,len(pkeys)):
             if crow < minrow or minrow < 0:
                 minrow=crow            
     outS += xlskeys[i]+":;"+ str(minrow) + ";"+ str(keys[k.lower()]+keys[k.upper()])+ "\n"
+
+

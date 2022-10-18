@@ -30,6 +30,11 @@ public class Analyzer
         char[,] chars = new char[11, 3];
         byte[,] priority = new byte[11, 3];
         int[,] lCounts = new int[11, 3];
+        
+        //scan ranges for next cell detection and nearby detection
+        int yrange = 2;
+        int xrange = 2;
+        
         bool IsValid(int x, int y) => x >= 0 && x < 11 && y >= 0 && y < 3 && chars[x, y] != SKIP;
 
         bool IsValidChar(int x, int y) =>
@@ -38,9 +43,9 @@ public class Analyzer
         int CellWeight(int x, int y)
         {
             int w = 0;
-            for (int i = -1; i <= 1; i++)
+            for (int i = -xrange; i <= xrange; i++)
             {
-                for (int k = -1; k <= 1; k++)
+                for (int k = -yrange; k <= yrange; k++)
                 {
                     if (IsValid(x + i, y + k))
                     {
@@ -55,9 +60,9 @@ public class Analyzer
         string GetNearChars(int x, int y)
         {
             StringBuilder res = new StringBuilder();
-            for (int i = -1; i <= 1; i++)
+            for (int i = -xrange; i <= xrange; i++)
             {
-                for (int k = -1; k <= 1; k++)
+                for (int k = -yrange; k <= yrange; k++)
                 {
                     if (IsValidChar(x + i, y + k))
                     {
@@ -80,7 +85,7 @@ public class Analyzer
         
         string[] prio = new string[3]
         {
-            "55552025555",
+            "34552025543",
             "00003_30000",
             "03331_13330",
         };

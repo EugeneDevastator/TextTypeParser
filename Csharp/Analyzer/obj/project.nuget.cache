@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "6RN5kLqNSVbNPixitDqHC1C+BkYE7w3KcVhe0QoNB8nZfAchK5zIn9hxDUF9Cckk9L45zPzBwRrCgGs53IUFGA==",
+  "success": true,
+  "projectFilePath": "D:\\1\\TextTypeParser\\Csharp\\Analyzer\\Analyzer.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Eugene\\.nuget\\packages\\numsharp\\0.30.0\\numsharp.0.30.0.nupkg.sha512",
+    "C:\\Users\\Eugene\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512"
+  ],
+  "logs": []
+}

@@ -28,6 +28,7 @@ public class Analyzer
         const char SKIP = '_';
         const char NONE = '*';
         char[,] chars = new char[11, 3];
+        byte[,] priority = new byte[11, 3];
         int[,] lCounts = new int[11, 3];
         bool IsValid(int x, int y) => x >= 0 && x < 11 && y >= 0 && y < 3 && chars[x, y] != SKIP;
 
@@ -47,7 +48,7 @@ public class Analyzer
                     }
                 }
             }
-
+            w += priority[x, y] * 100000000;
             return w;
         }
 
@@ -70,25 +71,35 @@ public class Analyzer
 
         string unparsedYet = Constants.typable;
 
-        string[] r = new string[3]
+        string[] baseline = new string[3]
         {
             "*****_*****",
             "arst*_*neio",
-            ",***___***.",
+            ",****_****.",
         };
-        string unuse = " ;";
+        
+        string[] prio = new string[3]
+        {
+            "55552025555",
+            "00003_30000",
+            "03331_13330",
+        };
+
+        
+        string unuse = " ";
         foreach (var c in unuse)
         {
             unparsedYet=unparsedYet.Replace(c.ToString(),String.Empty);
         }
 
-        // Initial Fill;
+        // Initial Fill, dont want to index arrays in row-column format.
         for (int k = 0; k < 3; k++)
         {
             for (int i = 0; i < 11; i++)
             {
-                var c = r[k][i];
+                var c = baseline[k][i];
                 chars[i, k] = c;
+                priority[i, k] = Convert.ToByte(prio[k][i]);
                 if (c != SKIP && c != NONE)
                 {
                     lCounts[i, k] = counts[typIndices[c]];
@@ -126,7 +137,7 @@ public class Analyzer
                 break;
             
             var matchStatic = GetNearChars(nextx, nexty);
-            var mostFit = LessAdjacentForAll(matchStatic, unparsedYet);
+            var mostFit = LessAdjacentForAllWMetric(matchStatic, unparsedYet);
             unparsedYet= unparsedYet.Replace(mostFit.ToString(),String.Empty);
             chars[nextx, nexty] = mostFit;
             lCounts[nextx, nexty] = counts[typIndices[mostFit]];
@@ -145,6 +156,36 @@ public class Analyzer
     }
 
 
+    public char LessAdjacentForAllWMetric(string setStatic, string setLook)
+    {
+        var staticChars = setStatic.ToCharArray();
+        var lookChars = setLook.ToCharArray();
+        var staticCharIds = setStatic.ToCharArray().Select(c => typIndices[c]).ToArray();
+        var lookCharIds = setLook.ToCharArray().Select(c => typIndices[c]).ToArray();
+
+        float[] sumCounts = new float[setLook.Length];
+
+        for (int i = 0; i < setLook.Length; i++)
+        {
+            sumCounts[i] = 0;
+            for (int k = 0; k < setStatic.Length; k++)
+            {
+                sumCounts[i] += adjacencyAny[staticCharIds[k], lookCharIds[i]];
+            }
+
+            var cnt = counts.GetInt64(lookCharIds[i]);
+            sumCounts[i] = (cnt*cnt)/ sumCounts[i];
+        }
+
+        var sortedSumIds = np.asarray(sumCounts).argsort<float>();
+        var sortedChars = sortedSumIds.ToArray<int>().Select(i => lookChars[i]).ToArray();
+        var sortedSums = np.asarray(sumCounts)[sortedSumIds];
+        Console.WriteLine("adjacency sums to: " + setStatic);
+        Console.WriteLine(sortedSums.ToString());
+        Console.WriteLine(sortedChars);
+        return sortedChars[^1]; //getting max;
+    }
+    
     public char LessAdjacentForAll(string setStatic, string setLook)
     {
         var staticChars = setStatic.ToCharArray();

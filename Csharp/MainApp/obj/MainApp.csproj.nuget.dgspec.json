@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\GITHUB\\KeyParser\\KeyParser\\MainApp\\MainApp.csproj": {}
+    "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj": {}
   },
   "projects": {
-    "D:\\GITHUB\\KeyParser\\KeyParser\\MainApp\\MainApp.csproj": {
+    "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\GITHUB\\KeyParser\\KeyParser\\MainApp\\MainApp.csproj",
+        "projectUniqueName": "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj",
         "projectName": "MainApp",
-        "projectPath": "D:\\GITHUB\\KeyParser\\KeyParser\\MainApp\\MainApp.csproj",
+        "projectPath": "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj",
         "packagesPath": "C:\\Users\\Eugene\\.nuget\\packages\\",
-        "outputPath": "D:\\GITHUB\\KeyParser\\KeyParser\\MainApp\\obj\\",
+        "outputPath": "D:\\1\\TextTypeParser\\Csharp\\MainApp\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\Eugene\\AppData\\Roaming\\NuGet\\NuGet.Config",

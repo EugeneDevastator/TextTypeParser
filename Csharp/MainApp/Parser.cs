@@ -1,21 +1,10 @@
 ﻿using System.Text;
+using MainApp;
 using NumSharp;
 
 public class Parser
 {
-    private const string parsePath = "D:\\1\\all";
-    private const string rootPath = "D:\\1\\";
-    private const string adjDirectName = "dirAdjacency.csv";
-    private const string sortedDirectAdjName = "dirAdjacencySort.csv";
-    private const string sortedBiDirAdjName = "BidirAdjacencySort.csv";
-    private const string adjRawName = "absAdjacency.csv";
-    private const string countsName = "rawCounts.csv";
 
-    private const string BiAdjDatafile = "biAdj.data";
-    private const string AdjDatafile = "Adj.data";
-    private const string CountsDatafile = "counts.data";
-
-    private const string typable = "abcdefghijklmnopqrstuvwxyz .,;";
 
     private char[] typableChars;
     private long[] typableCounts;
@@ -30,9 +19,10 @@ public class Parser
     //private float[,] adjacency;
     //private Dictionary<char, int> typableCounts = new Dictionary<char, int>();
     private Dictionary<char, byte> typIndices = new Dictionary<char, byte>();
-
+    private string typable;
     public Parser()
     {
+        typable = Constants.typable;
         adjacency = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         adjacencyAny = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         typableNames = new string[typable.Length];
@@ -56,7 +46,7 @@ public class Parser
 
     public void Parse()
     {
-        DirectoryInfo d = new DirectoryInfo(parsePath); //Assuming Test is your Folder
+        DirectoryInfo d = new DirectoryInfo(Constants.parsePath); //Assuming Test is your Folder
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
 
         ExtractDataToVars(Files);
@@ -79,9 +69,9 @@ public class Parser
             }
         }
         
-        np.save(Path.Combine(rootPath, AdjDatafile), adjacency);
-        np.save(Path.Combine(rootPath, BiAdjDatafile), adjacencyAny);
-        np.save(Path.Combine(rootPath,CountsDatafile),np.asarray(typableCounts));
+        np.save(Path.Combine(Constants.rootPath, Constants.AdjDatafile), adjacency);
+        np.save(Path.Combine(Constants.rootPath, Constants.BiAdjDatafile), adjacencyAny);
+        np.save(Path.Combine(Constants.rootPath,Constants.CountsDatafile),np.asarray(typableCounts));
     }
 
     private void WriteAdjacency()
@@ -103,7 +93,7 @@ public class Parser
             output.Append("\n");
         }
 
-        File.WriteAllText(Path.Combine(rootPath, adjDirectName), output.ToString());
+        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.adjDirectName), output.ToString());
     }
 
     private void WriteAdjacencyAny()
@@ -124,7 +114,7 @@ public class Parser
             output.Append("\n");
         }
 
-        File.WriteAllText(Path.Combine(rootPath, adjRawName), output.ToString());
+        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.adjRawName), output.ToString());
     }
     
     private void WriteSortedAdjacency()
@@ -148,7 +138,7 @@ public class Parser
             output.Append('\n');
         }
 
-        File.WriteAllText(Path.Combine(rootPath, sortedDirectAdjName), output.ToString());
+        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.sortedDirectAdjName), output.ToString());
     }
 
     private void WriteSortedAdjacencyAny()
@@ -173,7 +163,7 @@ public class Parser
             output.Append('\n');
         }
 
-        File.WriteAllText(Path.Combine(rootPath, sortedBiDirAdjName), output.ToString());
+        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.sortedBiDirAdjName), output.ToString());
     }
 
     private void WriteCounts()
@@ -185,7 +175,7 @@ public class Parser
             output.Append(typableNames[k]).Append(";").Append(typableCounts[k]).Append("\n");
         }
 
-        File.WriteAllText(Path.Combine(rootPath, countsName), output.ToString());
+        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.countsName), output.ToString());
     }
 
     private void ExtractDataToVars(FileInfo[] Files)

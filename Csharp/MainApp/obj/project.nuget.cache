@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "eXZOIIfc6/9Qr+2CQIaK7zAhsoCq9fNxPMHIqwm18YWIGtYYinH5i0T9Gozv1H0+Q3afaNK7mrdoRvzBMr7B0w==",
+  "dgSpecHash": "RIRefQlRKU0IK0iFw08/jGDO9NlVUDg6G9D/+LYmW6C7FHZKwaMjz/stIF0NcqfXkZ/M5wShFEtL4WL1/jmbKw==",
   "success": true,
-  "projectFilePath": "D:\\GITHUB\\KeyParser\\KeyParser\\MainApp\\MainApp.csproj",
+  "projectFilePath": "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Eugene\\.nuget\\packages\\numsharp\\0.30.0\\numsharp.0.30.0.nupkg.sha512",
     "C:\\Users\\Eugene\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512"

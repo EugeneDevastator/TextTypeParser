@@ -14,6 +14,4 @@ public static class Constants
     public const string sortedBiDirAdjName = "BidirAdjacencySort.csv";
     public const string adjRawName = "absAdjacency.csv";
     public const string countsName = "rawCounts.csv";
-    
-    public const string typable = "abcdefghijklmnopqrstuvwxyz .,;";
 }

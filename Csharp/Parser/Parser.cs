@@ -8,8 +8,6 @@ using NumSharp;
 
 public class Parser
 {
-
-
     private char[] typableChars => _keyData.typable.ToCharArray();
     private string[] typableNames => _keyData.typableNames;
 
@@ -25,10 +23,14 @@ public class Parser
     private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices;
     private string typable => _keyData.typable;
     private CharData.KeyData _keyData;
+    private KeyConverter _keyConvert;
 
     public Parser()
     {
-        _keyData = new CharData.KeyData();
+        _keyConvert = new KeyConverter();
+        Console.WriteLine(_keyConvert.UniqueKeys.ToString());
+        
+        _keyData = new CharData.KeyData(_keyConvert.UniqueKeys);
         
         adjacencyZero = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         adjacencyOne = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
@@ -207,9 +209,10 @@ public class Parser
                 if (pos % 400000 ==0)
                     Console.WriteLine(pos/totalSize);
                 //not really interested in uppercasing.
-                c = char.ToLower(cr);
-                if (typableChars.Contains(c))
+                
+                if (_keyConvert.VisualSymbols.Contains(cr))
                 {
+                    c = _keyConvert.VisualToKey(cr);
                     kc = kb;
                     kb = ka;
                     ka = c;

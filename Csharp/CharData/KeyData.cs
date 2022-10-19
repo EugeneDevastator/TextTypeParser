@@ -6,28 +6,36 @@ namespace CharData;
 
 public class KeyData
 {
-    public const string visual = "abcdefghijklmnopqrstuvwxyz .,;"; //parser related
-    public const string visualToTypable = ""; // parser
-    
-    public string typable = "abcdefghijklmnopqrstuvwxyz .,;"; //stored data.
+    public string typable; // = "abcdefghijklmnopqrstuvwxyz .,;"; //stored data.
+
+    public Dictionary<char, string> charNames = new Dictionary<char, string>()
+    {
+        { ' ', "spc" },
+        { '.', "dot" },
+        { ',', "coma" },
+        { ';', "semi" },
+        { '\'', "quot" },
+        { '\\', "slsh" },
+        { '-', "minus" },
+        { '[', "lbr" },
+        { ']', "rbr" },
+    };
+
     public string[] typableNames;
 
     public IReadOnlyDictionary<char, byte> TypIndices => typIndices;
     private Dictionary<char, byte> typIndices = new Dictionary<char, byte>();
     
-    public KeyData()
+    public KeyData(string uniqueKeys)
     {
+        typable = uniqueKeys;
         typableNames = new string[typable.Length];
 
         for (int i = 0; i < typable.Length; i++)
         {
-            typableNames[i] = typable[i].ToString();
+            typableNames[i] = charNames.ContainsKey(typable[i]) ? charNames[typable[i]] : typable[i].ToString();
             typIndices[typable[i]] = (byte)i;
         }
-        typableNames[^1] = "semi";
-        typableNames[^2] = "coma";
-        typableNames[^3] = "dot";
-        typableNames[^4] = "spc";
     }
 
     public string NameOf(char c) => typIndices.ContainsKey(c) ? typableNames[typIndices[c]] : c.ToString();

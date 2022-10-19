@@ -12,7 +12,7 @@ public class DataContainer
     public NDArray adjacencyZeroAny;
     
     public NDArray adjacencyMetric;
-    private string _keys;
+    public string _keys;
 
     public DataContainer()
     {

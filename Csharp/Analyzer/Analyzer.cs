@@ -10,7 +10,7 @@ using NumSharp;
 
 public class Analyzer
 {
-    private Dictionary<char, byte> typIndices = new Dictionary<char, byte>();
+    private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices;//= new Dictionary<char, byte>();
     private KeyData _keyData;
     private NDArray adjacencyMetric => _data.adjacencyMetric;
     private NDArray counts => _data.counts;
@@ -19,18 +19,28 @@ public class Analyzer
 
     public Analyzer()
     {
-        _keyData = new KeyData();
         _data = new DataContainer();
-        for (int i = 0; i < Constants.typable.Length; i++)
-        {
-            typIndices[Constants.typable[i]] = (byte)i;
-        }
+        _keyData = new KeyData(_data._keys);
+        
+      //  for (int i = 0; i < _keyData.typable.Length; i++)
+      //  {
+      //      typIndices[_keyData.typable[i]] = (byte)i;
+      //  }
     }
 
     public void GenerateLayout()
     {
+        string unparsedYet = _keyData.typable;
+        
+        string unuse = " \\-90/[]=";
+        foreach (var c in unuse)
+        {
+            unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
+        }
+        
         const char SKIP = '_';
         const char NONE = '*';
+        
         string[] baseline = new string[]
         {
             "*****_*****",
@@ -38,7 +48,7 @@ public class Analyzer
             "*****_*****",
         };
 
-        string[] prio = new string[]
+        string[] priorityTemplate = new string[]
         {
             //  "34552025543",
             //  "00003_30000",
@@ -50,9 +60,32 @@ public class Analyzer
 
         var w = baseline[0].Length;
         var h = baseline.Length;
+        
         char[,] chars = new char[w, h];
         byte[,] priority = new byte[w, h];
         int[,] lCounts = new int[w, h];
+        
+        // Initial Fill, want arrays in x,y indexing.
+        for (int k = 0; k < h; k++)
+        {
+            for (int i = 0; i < w; i++)
+            {
+                var c = baseline[k][i];
+                chars[i, k] = c;
+                
+                if (priorityTemplate[k][i]!= SKIP)
+                    priority[i, k] = Convert.ToByte(priorityTemplate[k][i].ToString()); //wtf char no longer converts?
+                
+                if (c != SKIP && c != NONE)
+                {
+                    
+                    lCounts[i, k] = counts[typIndices[c]];
+                    unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
+                }
+                else
+                    lCounts[i, k] = 0;
+            }
+        }
 
         //scan ranges for next cell detection and nearby detection
         int yrange = 2;
@@ -99,34 +132,6 @@ public class Analyzer
             return res.ToString();
         }
 
-        string unparsedYet = Constants.typable;
-
-//there is one more problem that we will fill one half first, due to increased entropy after first key is placed.
-
-        string unuse = " ";
-        foreach (var c in unuse)
-        {
-            unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
-        }
-
-        // Initial Fill, dont want to index arrays in row-column format.
-        for (int k = 0; k < h; k++)
-        {
-            for (int i = 0; i < w; i++)
-            {
-                var c = baseline[k][i];
-                chars[i, k] = c;
-                priority[i, k] = Convert.ToByte(prio[k][i]);
-                if (c != SKIP && c != NONE)
-                {
-                    lCounts[i, k] = counts[typIndices[c]];
-                    unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
-                }
-                else
-                    lCounts[i, k] = 0;
-            }
-        }
-
         // new algo:
         // 1. pick most used key
         // 1.2 get key locations for most prioritized batch;
@@ -168,6 +173,9 @@ public class Analyzer
                 }
 
                 var batch = GetCandidatePositions();
+                if (batch.Count < 1)
+                    break;
+                
                 var bestcoord = batch[0];
                 float maxRate = 0;
                 foreach (var coord in batch)
@@ -258,7 +266,7 @@ public class Analyzer
         Console.WriteLine();
         PrintForTable();
 
-        Console.WriteLine("leftover:" + unparsedYet);
+        Console.WriteLine("leftover: " + unparsedYet);
     }
 
 

@@ -29,35 +29,37 @@ public class Analyzer
     {
         const char SKIP = '_';
         const char NONE = '*';
-        char[,] chars = new char[11, 3];
-        byte[,] priority = new byte[11, 3];
-        int[,] lCounts = new int[11, 3];
+        var w = 11;
+        var h = 3;
+        char[,] chars = new char[w, h];
+        byte[,] priority = new byte[w, h];
+        int[,] lCounts = new int[w, h];
 
         //scan ranges for next cell detection and nearby detection
         int yrange = 2;
         int xrange = 1;
 
-        bool IsValid(int x, int y) => x >= 0 && x < 11 && y >= 0 && y < 3 && chars[x, y] != SKIP;
+        bool IsValid(int x, int y) => x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP;
 
         bool IsValidChar(int x, int y) =>
-            x >= 0 && x < 11 && y >= 0 && y < 3 && chars[x, y] != SKIP && chars[x, y] != NONE;
+            x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] != NONE;
 
         int CellWeight(int x, int y)
         {
-            int w = 0;
+            int weight = 0;
             for (int i = -xrange; i <= xrange; i++)
             {
                 for (int k = -yrange; k <= yrange; k++)
                 {
                     if (IsValid(x + i, y + k))
                     {
-                        w += lCounts[x + i, y + k];
+                        weight += lCounts[x + i, y + k];
                     }
                 }
             }
 
-            w += priority[x, y] * 100000000;
-            return w;
+            weight += priority[x, y] * 100000000;
+            return weight;
         }
 
         string GetNearChars(int x, int y)
@@ -80,21 +82,21 @@ public class Analyzer
 
         string unparsedYet = Constants.typable;
 
-        string[] baseline = new string[3]
+        string[] baseline = new string[]
         {
             "*****_*****",
             "arst*_*neio",
             "*****_*****",
         };
 
-        string[] prio = new string[3]
+        string[] prio = new string[]
         {
             //  "34552025543",
             //  "00003_30000",
             //  "54331_13345",
-            "27883_38872",
+            "07883_38870",
             "99995_59999",
-            "24580_08542",
+            "24581_18542",
         };
 //there is one more problem that we will fill one half first, due to increased entropy after first key is placed.
 
@@ -105,9 +107,9 @@ public class Analyzer
         }
 
         // Initial Fill, dont want to index arrays in row-column format.
-        for (int k = 0; k < 3; k++)
+        for (int k = 0; k < h; k++)
         {
-            for (int i = 0; i < 11; i++)
+            for (int i = 0; i < w; i++)
             {
                 var c = baseline[k][i];
                 chars[i, k] = c;
@@ -190,9 +192,9 @@ public class Analyzer
                 int nextx = -1;
                 int nexty = -1;
                 int maxVal = 0;
-                for (int k = 0; k < 3; k++)
+                for (int k = 0; k < h; k++)
                 {
-                    for (int i = 0; i < 11; i++)
+                    for (int i = 0; i < w; i++)
                     {
                         if (chars[i, k] != NONE)
                             continue;
@@ -220,10 +222,10 @@ public class Analyzer
 
         void PrintForTable()
         {
-            for (int k = 0; k < 3; k++)
+            for (int k = 0; k < h; k++)
             {
                 string line = "";
-                for (int i = 0; i < 11; i++)
+                for (int i = 0; i < w; i++)
                 {
                     line += _charData.NameOf(chars[i, k]) + " ";
                 }
@@ -234,10 +236,10 @@ public class Analyzer
 
         void PrintRaw()
         {
-            for (int k = 0; k < 3; k++)
+            for (int k = 0; k < h; k++)
             {
                 string line = "";
-                for (int i = 0; i < 11; i++)
+                for (int i = 0; i < w; i++)
                 {
                     line += chars[i, k];
                 }

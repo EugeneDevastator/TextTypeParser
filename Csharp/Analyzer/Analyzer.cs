@@ -10,37 +10,37 @@ using NumSharp;
 
 public class Analyzer
 {
-    private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices;//= new Dictionary<char, byte>();
+    private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices; //= new Dictionary<char, byte>();
     private KeyData _keyData;
     private NDArray adjacencyMetric => _data.adjacencyMetric;
     private NDArray counts => _data.counts;
-    
+
     private DataContainer _data;
 
     public Analyzer()
     {
         _data = new DataContainer();
         _keyData = new KeyData(_data._keys);
-        
-      //  for (int i = 0; i < _keyData.typable.Length; i++)
-      //  {
-      //      typIndices[_keyData.typable[i]] = (byte)i;
-      //  }
+
+        //  for (int i = 0; i < _keyData.typable.Length; i++)
+        //  {
+        //      typIndices[_keyData.typable[i]] = (byte)i;
+        //  }
     }
 
     public void GenerateLayout()
     {
         string unparsedYet = _keyData.typable;
-        
+
         string unuse = " \\-90/[]=";
         foreach (var c in unuse)
         {
             unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
         }
-        
+
         const char SKIP = '_';
         const char NONE = '*';
-        
+
         string[] baseline = new string[]
         {
             "*****_*****",
@@ -50,21 +50,28 @@ public class Analyzer
 
         string[] priorityTemplate = new string[]
         {
-            //  "34552025543",
-            //  "00003_30000",
-            //  "54331_13345",
-            "07883_38870",
-            "99995_59999",
-            "24581_18542",
+            //"07883_38870",
+            //"99995_59999",
+            //"24581_18542",
+            
+            //std template:
+            //"07883_38870",
+            //"99995_59999",
+            //"24581_18542",
+            "18886_68881",
+            "99997_79999",
+            "58881_18885",
+            
         };
+
 
         var w = baseline[0].Length;
         var h = baseline.Length;
-        
+
         char[,] chars = new char[w, h];
         byte[,] priority = new byte[w, h];
         int[,] lCounts = new int[w, h];
-        
+
         // Initial Fill, want arrays in x,y indexing.
         for (int k = 0; k < h; k++)
         {
@@ -72,13 +79,12 @@ public class Analyzer
             {
                 var c = baseline[k][i];
                 chars[i, k] = c;
-                
-                if (priorityTemplate[k][i]!= SKIP)
+
+                if (priorityTemplate[k][i] != SKIP)
                     priority[i, k] = Convert.ToByte(priorityTemplate[k][i].ToString()); //wtf char no longer converts?
-                
+
                 if (c != SKIP && c != NONE)
                 {
-                    
                     lCounts[i, k] = counts[typIndices[c]];
                     unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
                 }
@@ -89,12 +95,15 @@ public class Analyzer
 
         //scan ranges for next cell detection and nearby detection
         int yrange = 2;
-        int xrange = 1;
+        int xrange = 2;
 
         bool IsValid(int x, int y) => x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP;
 
         bool IsValidChar(int x, int y) =>
             x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] != NONE;
+        
+        bool IsValidEmpty(int x, int y) =>
+            x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] == NONE;
 
         int CellWeight(int x, int y)
         {
@@ -113,6 +122,56 @@ public class Analyzer
             weight += priority[x, y] * 100000000;
             return weight;
         }
+
+
+        (int x, int y) center = (x: 2, y: 2);
+        string[] fitMeterTemplateRC = new string[]
+        {
+            "LLLLL",
+            "*LLL*",
+            "*M*M*",
+            "*LLL*",
+            "LLLLL",
+        };
+
+        const char IGNOR = '*';
+        const char MAXIMIZE = 'M';
+        const char MINIMIZE = 'L';
+
+        //bigger score = more acceptable key is.
+        float MeterAdjacencyFitScore(char candidate, char neighbor, char mode)
+        {
+            switch (mode)
+            {
+                case IGNOR:
+                    return 0;
+                case MAXIMIZE:
+                    return _data.adjacencyMetric[_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)];
+                case MINIMIZE:
+                    var res = -1*_data.adjacencyMetric.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+                    return res;
+                default:
+                    return 0;
+            }
+        }
+
+        float GetAdjacencyScore(int x, int y, char candidate)
+        {
+            float score = 0;
+            for (int i = -xrange; i <= xrange; i++)
+            {
+                for (int k = -yrange; k <= yrange; k++)
+                {
+                    if (IsValidChar(x + i, y + k))
+                    {
+                        var mode = fitMeterTemplateRC[center.y + k][center.x + i]; //not converted in RC format.
+                        score += MeterAdjacencyFitScore(candidate, chars[i + x, k + y], mode);
+                    }
+                }
+            }
+            return score;
+        }
+
 
         string GetNearChars(int x, int y)
         {
@@ -175,19 +234,23 @@ public class Analyzer
                 var batch = GetCandidatePositions();
                 if (batch.Count < 1)
                     break;
-                
+
                 var bestcoord = batch[0];
                 float maxRate = 0;
                 foreach (var coord in batch)
                 {
-                    var matchStatic = GetNearChars(coord.x, coord.y);
-                    //return count as well.
-                    var (selfchar, weight) = LessAdjacentForAllWMetric(matchStatic, nextC.ToString());
+                    //previous matcher
+                    // var matchStatic = GetNearChars(coord.x, coord.y);
+                    // var (selfchar, weight) = LessAdjacentForAllWMetric(matchStatic, nextC.ToString());
+                    
+                    var weight = GetAdjacencyScore(coord.x, coord.y, nextC);
+                    
                     if (weight > maxRate)
                     {
                         maxRate = weight;
                         bestcoord = coord;
                     }
+
                 }
 
                 chars[bestcoord.x, bestcoord.y] = nextC;

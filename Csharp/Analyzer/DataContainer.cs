@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using CharData;
 using MainApp;
 using NumSharp;
 
@@ -47,8 +48,24 @@ public class DataContainer
         {
             for (int i = k + 1; i < adjacencyOne.shape[0]; i++)
             {
-                adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k];
+                adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0;
             }
         }
     }
+}
+
+public class Charred2DArray<T> where T : unmanaged
+{
+    private NDArray _data;
+    private char[] _chars;
+    private KeyData _keyData;
+
+    public Charred2DArray(NDArray data, KeyData keyData)
+    {
+        _keyData = keyData;
+        _data = data;
+    }
+
+    public T this[char c1, char c2] => _data.GetValue<T>(new []{_keyData.IdxOf(c1), _keyData.IdxOf(c2)});
+
 }

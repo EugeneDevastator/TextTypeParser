@@ -1,36 +1,55 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Text;
+using CharData;
 using MainApp;
 using NumSharp;
 
 public class Analyzer
 {
-    private NDArray adjacency;
-    private NDArray adjacencyAny;
-    private NDArray counts;
-
     private Dictionary<char, byte> typIndices = new Dictionary<char, byte>();
-    private CharData.CharData _charData;
+    private KeyData _keyData;
+    private NDArray adjacencyMetric => _data.adjacencyMetric;
+    private NDArray counts => _data.counts;
+    
+    private DataContainer _data;
 
     public Analyzer()
     {
-        adjacency = np.load(Path.Combine(Constants.rootPath, Constants.AdjDatafile + ".npy"));
-        adjacencyAny = np.load(Path.Combine(Constants.rootPath, Constants.BiAdjDatafile + ".npy"));
-        counts = np.load(Path.Combine(Constants.rootPath, Constants.CountsDatafile + ".npy"));
+        _keyData = new KeyData();
+        _data = new DataContainer();
         for (int i = 0; i < Constants.typable.Length; i++)
         {
             typIndices[Constants.typable[i]] = (byte)i;
         }
-        _charData = new CharData.CharData();
     }
 
     public void GenerateLayout()
     {
         const char SKIP = '_';
         const char NONE = '*';
-        var w = 11;
-        var h = 3;
+        string[] baseline = new string[]
+        {
+            "*****_*****",
+            "arst*_*neio",
+            "*****_*****",
+        };
+
+        string[] prio = new string[]
+        {
+            //  "34552025543",
+            //  "00003_30000",
+            //  "54331_13345",
+            "07883_38870",
+            "99995_59999",
+            "24581_18542",
+        };
+
+        var w = baseline[0].Length;
+        var h = baseline.Length;
         char[,] chars = new char[w, h];
         byte[,] priority = new byte[w, h];
         int[,] lCounts = new int[w, h];
@@ -82,22 +101,6 @@ public class Analyzer
 
         string unparsedYet = Constants.typable;
 
-        string[] baseline = new string[]
-        {
-            "*****_*****",
-            "arst*_*neio",
-            "*****_*****",
-        };
-
-        string[] prio = new string[]
-        {
-            //  "34552025543",
-            //  "00003_30000",
-            //  "54331_13345",
-            "07883_38870",
-            "99995_59999",
-            "24581_18542",
-        };
 //there is one more problem that we will fill one half first, due to increased entropy after first key is placed.
 
         string unuse = " ";
@@ -227,7 +230,7 @@ public class Analyzer
                 string line = "";
                 for (int i = 0; i < w; i++)
                 {
-                    line += _charData.NameOf(chars[i, k]) + " ";
+                    line += _keyData.NameOf(chars[i, k]) + " ";
                 }
 
                 Console.WriteLine(line);
@@ -247,8 +250,7 @@ public class Analyzer
                 Console.WriteLine(line);
             }
         }
-        
-        
+
 
         //GenerateLayoutByEmptyWeightFirst();
         GenerateLayoutByLetterAndBatches();
@@ -275,7 +277,7 @@ public class Analyzer
             sumCounts[i] = 0;
             for (int k = 0; k < setStatic.Length; k++)
             {
-                sumCounts[i] += adjacencyAny[staticCharIds[k], lookCharIds[i]];
+                sumCounts[i] += adjacencyMetric[staticCharIds[k], lookCharIds[i]];
             }
 
             var cnt = counts.GetInt64(lookCharIds[i]);
@@ -306,7 +308,7 @@ public class Analyzer
             sumCounts[i] = 0;
             for (int k = 0; k < setStatic.Length; k++)
             {
-                sumCounts[i] += adjacencyAny[staticCharIds[k], lookCharIds[i]];
+                sumCounts[i] += adjacencyMetric[staticCharIds[k], lookCharIds[i]];
             }
         }
 
@@ -329,7 +331,7 @@ public class Analyzer
         {
             var cIdx = typIndices[cStat];
             var lookIndices = lookChars.Select(c => typIndices[c]).ToArray();
-            var row = adjacencyAny[cIdx];
+            var row = adjacencyMetric[cIdx];
             var lookedAdj = row[np.asarray(lookIndices)];
             var localIdxSort = lookedAdj.argsort<float>();
 

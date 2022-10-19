@@ -23,6 +23,16 @@
           "lib/netcoreapp2.1/_._": {}
         }
       },
+      "CharData/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/CharData.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/CharData.dll": {}
+        }
+      },
       "MainApp/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
@@ -76,6 +86,11 @@
         "version.txt"
       ]
     },
+    "CharData/1.0.0": {
+      "type": "project",
+      "path": "../CharData/CharData.csproj",
+      "msbuildProject": "../CharData/CharData.csproj"
+    },
     "MainApp/1.0.0": {
       "type": "project",
       "path": "../MainApp/MainApp.csproj",
@@ -84,6 +99,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
+      "CharData >= 1.0.0",
       "MainApp >= 1.0.0",
       "NumSharp >= 0.30.0"
     ]
@@ -115,6 +131,9 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
+            "D:\\1\\TextTypeParser\\Csharp\\CharData\\CharData.csproj": {
+              "projectPath": "D:\\1\\TextTypeParser\\Csharp\\CharData\\CharData.csproj"
+            },
             "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj": {
               "projectPath": "D:\\1\\TextTypeParser\\Csharp\\MainApp\\MainApp.csproj"
             }

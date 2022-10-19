@@ -20,3 +20,5 @@ D:\1\TextTypeParser\Csharp\Analyzer\obj\Debug\net6.0\refint\Analyzer.dll
 D:\1\TextTypeParser\Csharp\Analyzer\obj\Debug\net6.0\Analyzer.pdb
 D:\1\TextTypeParser\Csharp\Analyzer\obj\Debug\net6.0\Analyzer.genruntimeconfig.cache
 D:\1\TextTypeParser\Csharp\Analyzer\obj\Debug\net6.0\ref\Analyzer.dll
+D:\1\TextTypeParser\Csharp\Analyzer\bin\Debug\net6.0\CharData.dll
+D:\1\TextTypeParser\Csharp\Analyzer\bin\Debug\net6.0\CharData.pdb

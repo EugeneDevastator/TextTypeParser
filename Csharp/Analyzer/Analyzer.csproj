@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\CharData\CharData.csproj" />
       <ProjectReference Include="..\MainApp\MainApp.csproj" />
     </ItemGroup>
 

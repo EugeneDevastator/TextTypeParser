@@ -43,9 +43,9 @@ public class Analyzer
 
         string[] baseline = new string[]
         {
-            "*****_*****",
-            "arst*_*neio",
-            "*****_*****",
+            "_*****_*lu**_",
+            "*arst*_*neio*",
+            "_**c**_**y**_",
         };
 
         string[] priorityTemplate = new string[]
@@ -58,9 +58,9 @@ public class Analyzer
             //"07883_38870",
             //"99995_59999",
             //"24581_18542",
-            "18886_68881",
-            "99997_79999",
-            "58881_18885",
+            "_17886_68871_",
+            "199997_799991",
+            "_23881_18832_",
             
         };
 
@@ -94,8 +94,8 @@ public class Analyzer
         }
 
         //scan ranges for next cell detection and nearby detection
-        int yrange = 2;
-        int xrange = 2;
+        int yrange = 1;
+        int xrange = 1;
 
         bool IsValid(int x, int y) => x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP;
 
@@ -127,11 +127,11 @@ public class Analyzer
         (int x, int y) center = (x: 2, y: 2);
         string[] fitMeterTemplateRC = new string[]
         {
-            "LLLLL",
             "*LLL*",
-            "*M*M*",
+            "MMLMM",
+            "MM*MM",
+            "MMLMM",
             "*LLL*",
-            "LLLLL",
         };
 
         const char IGNOR = '*';

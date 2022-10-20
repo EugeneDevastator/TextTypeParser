@@ -11,7 +11,7 @@ public class DataContainer
 
     public NDArray adjacencyOneAny;
     public NDArray adjacencyZeroAny;
-    
+
     public NDArray adjacencyMetric;
     public string _keys;
 
@@ -48,7 +48,7 @@ public class DataContainer
         {
             for (int i = k + 1; i < adjacencyOne.shape[0]; i++)
             {
-                adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0;
+                adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.4f;
             }
         }
     }

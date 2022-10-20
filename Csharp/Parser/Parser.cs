@@ -13,11 +13,14 @@ public class Parser
 
     private float[,] adjFloatZero;
     private float[,] adjFloatOne;
+    private float[,] adjFloatOneBegins;
     private long[] typableCounts;
     
     private NDArray adjacencyZero;
     private NDArray adjacencyOne;
 
+    private NDArray adjacencyOneBegginings;
+    
     //private float[,] adjacency;
     //private Dictionary<char, int> typableCounts = new Dictionary<char, int>();
     private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices;
@@ -34,9 +37,11 @@ public class Parser
         
         adjacencyZero = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         adjacencyOne = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
+        adjacencyOneBegginings = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         typableCounts = new long[typable.Length];
         adjFloatZero = new float[typable.Length, typable.Length];
         adjFloatOne = new float[typable.Length, typable.Length];
+        adjFloatOneBegins = new float[typable.Length, typable.Length];
 
        
         for (int i = 0; i < typable.Length; i++)

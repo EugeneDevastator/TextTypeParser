@@ -43,9 +43,9 @@ public class Analyzer
 
         string[] baseline = new string[]
         {
-            "_*****_*lu**_",
+            "_***p*_*lu**_",
             "*arst*_*neio*",
-            "_**c**_**y**_",
+            "_**c**_*****_",
         };
 
         string[] priorityTemplate = new string[]

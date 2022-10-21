@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Text;
 using MainApp;
 using NumSharp;
@@ -15,26 +17,26 @@ public class Parser
     private float[,] adjFloatOne;
     private float[,] adjFloatOneBegins;
     private long[] typableCounts;
-    
+
     private NDArray adjacencyZero;
     private NDArray adjacencyOne;
 
     private NDArray adjacencyOneBegginings;
-    
+
     //private float[,] adjacency;
     //private Dictionary<char, int> typableCounts = new Dictionary<char, int>();
     private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices;
     private string typable => _keyData.typable;
     private CharData.KeyData _keyData;
-    private KeyConverter _keyConvert;
+    private SymbolMap _symbolMap;
 
     public Parser()
     {
-        _keyConvert = new KeyConverter();
-        Console.WriteLine(_keyConvert.UniqueKeys.ToString());
-        
-        _keyData = new CharData.KeyData(_keyConvert.UniqueKeys);
-        
+        _symbolMap = new SymbolMap();
+        Console.WriteLine(_symbolMap.UniqueKeys.ToString());
+
+        _keyData = new CharData.KeyData(_symbolMap.UniqueKeys);
+
         adjacencyZero = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         adjacencyOne = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         adjacencyOneBegginings = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
@@ -43,7 +45,7 @@ public class Parser
         adjFloatOne = new float[typable.Length, typable.Length];
         adjFloatOneBegins = new float[typable.Length, typable.Length];
 
-       
+
         for (int i = 0; i < typable.Length; i++)
         {
             typableCounts[i] = 0;
@@ -54,8 +56,9 @@ public class Parser
     {
         DirectoryInfo d = new DirectoryInfo(Constants.parsePath); //Assuming Test is your Folder
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
-
-        ExtractDataToVars(Files);
+        var text = GetAllData(Files);
+        ExtractDataAllChars(text);
+        ExtractDataAllCharsFirstNOfWord(text, 3);
         WriteDataFiles();
         WriteSortedAdjacency();
         WriteSortedAdjacencyAny();
@@ -74,11 +77,11 @@ public class Parser
                 adjacencyOne[i, k] = adjFloatOne[i, k];
             }
         }
-        
+
         np.save(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile), adjacencyZero);
         np.save(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile), adjacencyOne);
-        np.save(Path.Combine(Constants.rootPath,Constants.CountsDatafile),np.asarray(typableCounts));
-        File.WriteAllText(Path.Combine(Constants.rootPath,Constants.KeySetData),typable);
+        np.save(Path.Combine(Constants.rootPath, Constants.CountsDatafile), np.asarray(typableCounts));
+        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.KeySetData), typable);
     }
 
     private void WriteAdjacency()
@@ -118,12 +121,13 @@ public class Parser
             {
                 output.Append(adjacencyOne[i, k].ToString()).Append(";");
             }
+
             output.Append("\n");
         }
 
         File.WriteAllText(Path.Combine(Constants.rootPath, Constants.adjRawName), output.ToString());
     }
-    
+
     private void WriteSortedAdjacency()
     {
         StringBuilder output = new StringBuilder();
@@ -185,7 +189,110 @@ public class Parser
         File.WriteAllText(Path.Combine(Constants.rootPath, Constants.countsName), output.ToString());
     }
 
-    private void ExtractDataToVars(FileInfo[] Files)
+    private void ExtractDataAllCharsFirstNOfWord(string content, int firstn)
+    {
+        StringBuilder sampleOut = new();
+        int curr = 0;
+        char keyOfSym;
+        string separ = " ;.\"" + '\n';
+
+        {
+            var UPPER = _symbolMap.LowerLetters.ToUpper();
+            var Letters = _symbolMap.LowerLetters.ToUpper() + _symbolMap.LowerLetters;
+            int pos = 0;
+            char ka = '\0', kb = '\0', kc = '\0';
+            byte ia = 0, ib = 0, ic = 0;
+
+            byte posInWord = 0;
+
+            StringBuilder wordBuilder = new StringBuilder();
+
+            foreach (var cr in content.ToCharArray())
+            {
+                wordBuilder.Append(cr);
+                if (!Letters.Contains(cr))
+                {
+                    ParseOneWord(wordBuilder.ToString());
+                    wordBuilder.Clear();
+                }
+            }
+
+            void ParseOneWord(string word)
+            {
+                //AddWordTerminator(word);
+
+                //skip empty words for now.
+                if (!Letters.Contains(word[0]))
+                    return;
+                
+                //log out first letters
+                var maxlast = Math.Min(word.Length, firstn);
+                LogSequence(word[..maxlast]);
+
+                //log out sequence of capses.
+                StringBuilder s = new StringBuilder();
+                foreach (var ch in word)
+                {
+                    if (UPPER.Contains(ch))
+                        s.Append(ch);
+                }
+
+                LogSequence(s.ToString());
+            }
+
+            void ResetWord()
+            {
+                if (sampleOut.Length < 3000)
+                    sampleOut.Append("|");
+                kc = ka = kb = '\0';
+            }
+
+            void AddWordTerminator(string word)
+            {
+                
+                var last = word[^1];
+                if (_symbolMap.VisualSymbols.Contains(last))
+                {
+                    AddCountData(typIndices[_symbolMap.VisualToKey(word[^1])]);
+                    if (sampleOut.Length < 3000)
+                        sampleOut.Append(word[^1]);
+                }
+            }
+
+            void LogSequence(string seq)
+            {
+                ResetWord();
+                foreach (var cr in seq)
+                {
+                    if (_symbolMap.VisualSymbols.Contains(cr))
+                    {
+                        keyOfSym = _symbolMap.VisualToKey(cr);
+                        kc = kb;
+                        kb = ka;
+                        ka = keyOfSym;
+
+                        ic = ib;
+                        ib = ia;
+                        ia = typIndices[keyOfSym];
+
+                        if (kc != '\0')
+                            adjFloatOne[ia, ic] += 1;
+
+                        if (kb != '\0')
+                            adjFloatZero[ib, ic] += 1;
+                                                        
+                        AddCountData(ia);
+                        
+                        if (sampleOut.Length < 3000)
+                            sampleOut.Append(cr);
+                    }
+                }
+            }
+        }
+        Console.WriteLine("SAMPLE: " + sampleOut);
+    }
+
+    private string GetAllData(FileInfo[] Files)
     {
         float total = Files.Length;
         int curr = 0;
@@ -196,36 +303,38 @@ public class Parser
             if (curr % 20 == 0)
                 Console.WriteLine("progress" + curr / total);
             curr++;
-            
-            var content = File.ReadAllText(f.FullName);
-            allofthem.Append(content);
-        }
 
+            allofthem.Append(File.ReadAllText(f.FullName));
+        }
+        return allofthem.ToString();
+    } 
+    
+    private void ExtractDataAllChars(string content)
+    {
         {
             int pos = 0;
             char ka = '\0', kb = '\0', kc = '\0';
             byte ia = 0, ib = 0, ic = 0;
-
-            var content = allofthem.ToString();
+            char c = '\0';
             float totalSize = content.Length;
             foreach (var cr in content.ToCharArray())
             {
                 pos++;
-                if (pos % 400000 ==0)
-                    Console.WriteLine(pos/totalSize);
+                if (pos % 400000 == 0)
+                    Console.WriteLine(pos / totalSize);
                 //not really interested in uppercasing.
-                
-                if (_keyConvert.VisualSymbols.Contains(cr))
+
+                if (_symbolMap.VisualSymbols.Contains(cr))
                 {
-                    c = _keyConvert.VisualToKey(cr);
+                    c = _symbolMap.VisualToKey(cr);
                     kc = kb;
                     kb = ka;
                     ka = c;
-                    
+
                     ic = ib;
                     ib = ia;
                     ia = typIndices[c];
-                    
+
                     if (kc != '\0')
                     {
                         AddAdjacencyData(ia, ib, ic);

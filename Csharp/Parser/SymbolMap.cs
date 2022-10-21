@@ -1,6 +1,6 @@
-﻿public class KeyConverter
+﻿public class SymbolMap
 {
-    private string letters = "abcdefghijklmnopqrstuvwxyz";
+    public string LowerLetters = "abcdefghijklmnopqrstuvwxyz";
     private string symbols = " 9(0):;" + '\"' + "'" + ",<.>/?-_=+[{]}" + '\\' + "|";
     private string symbolsKeys = " 9900;;" + "'',,..//--==[[]]" + '\\' + '\\';
         
@@ -9,10 +9,10 @@
     private Dictionary<char, int> _visualToIndex = new Dictionary<char, int>();
     public string UniqueKeys;
 
-    public KeyConverter()
+    public SymbolMap()
     {
-        VisualSymbols = letters + letters.ToUpper() + symbols;
-        _visualToKeys = letters + letters + symbolsKeys;
+        VisualSymbols = LowerLetters + LowerLetters.ToUpper() + symbols;
+        _visualToKeys = LowerLetters + LowerLetters + symbolsKeys;
             
         for (var i = 0; i < VisualSymbols.Length; i++)
         {

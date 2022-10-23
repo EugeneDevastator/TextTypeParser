@@ -61,8 +61,8 @@ public class Analyzer
             //"1AABA7_7ABAA1",
             //"_23881_18832_",
             
-            "018880",
-            "07ABA3",
+            "017880",
+            "08ABA3",
             "2A8883",
         };
         for (var i = 0; i < priorityTemplate.Length; i++)
@@ -314,38 +314,38 @@ public class Analyzer
                 if (batch.Count < 1)
                     break;
 
+                //get batch symbols
                 var maxCount = 0;
-                char nextC = '\0';
-                foreach (var c in unparsedYet.ToCharArray())
-                {
-                    if ((int)counts[typIndices[c]] is var cnt && cnt > maxCount)
-                    {
-                        maxCount = cnt;
-                        nextC = c;
-                    }
-                }
-                
+                var arr = unparsedYet.ToCharArray().OrderByDescending(c => counts.GetInt64(typIndices[c])).ToArray();
+                var batchChars = arr[..batch.Count];
+
                 var bestcoord = batch[0];
+                var bestChar = batchChars[0];
                 float maxRate = 0;
-                foreach (var coord in batch)
+                
+                foreach (var bc in batchChars)
                 {
-                    //previous matcher
-                    // var matchStatic = GetNearChars(coord.x, coord.y);
-                    // var (selfchar, weight) = LessAdjacentForAllWMetric(matchStatic, nextC.ToString());
-                    
-                    var weight = GetPlacementScoreForKey(coord.x, coord.y, nextC);
-                    
-                    if (weight > maxRate)
+                    var nextC =bc;
+                    foreach (var coord in batch)
                     {
-                        maxRate = weight;
-                        bestcoord = coord;
-                    }
+                        //previous matcher
+                        // var matchStatic = GetNearChars(coord.x, coord.y);
+                        // var (selfchar, weight) = LessAdjacentForAllWMetric(matchStatic, nextC.ToString());
 
+                        var weight = GetPlacementScoreForKey(coord.x, coord.y, nextC);
+
+                        if (weight > maxRate)
+                        {
+                            maxRate = weight;
+                            bestcoord = coord;
+                            bestChar = bc;
+                        }
+                    }
                 }
 
-                chars[bestcoord.x, bestcoord.y] = nextC;
-                lCounts[bestcoord.x, bestcoord.y] = counts[typIndices[nextC]];
-                unparsedYet = unparsedYet.Replace(nextC.ToString(), String.Empty);
+                chars[bestcoord.x, bestcoord.y] = bestChar;
+                lCounts[bestcoord.x, bestcoord.y] = counts[typIndices[bestChar]];
+                unparsedYet = unparsedYet.Replace(bestChar.ToString(), String.Empty);
             }
         }
 

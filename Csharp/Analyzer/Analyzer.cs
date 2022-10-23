@@ -30,9 +30,13 @@ public class Analyzer
 
     public void GenerateLayout()
     {
+        // vi:
+       // Console.WriteLine(_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf('i'),_keyData.IdxOf('v')}));
+       // return;
+        
         string unparsedYet = _keyData.typable;
 
-        string unuse = " \\-90/[]=";
+        string unuse = " \\-90[]=/";
         foreach (var c in unuse)
         {
             unparsedYet = unparsedYet.Replace(c.ToString(), String.Empty);
@@ -43,27 +47,96 @@ public class Analyzer
 
         string[] baseline = new string[]
         {
-            "_***p*_*lu**_",
-            "*arst*_*neio*",
-            "_**c**_*****_",
+            //"_*hc*w_*lu**_",
+            //"*arstf_*neio*",
+            //"_***p*_*****_",
+            "_****___****_",
+            "_*rst*_*nei*_",
+            "*a****_****o*",
         };
 
         string[] priorityTemplate = new string[]
         {
-            //"07883_38870",
-            //"99995_59999",
-            //"24581_18542",
+            //"107886_688701",
+            //"1AABA7_7ABAA1",
+            //"_23881_18832_",
             
-            //std template:
-            //"07883_38870",
-            //"99995_59999",
-            //"24581_18542",
-            "_17886_68871_",
-            "199997_799991",
-            "_23881_18832_",
-            
+            "018880",
+            "07ABA3",
+            "2A8883",
+        };
+        for (var i = 0; i < priorityTemplate.Length; i++)
+        {
+            priorityTemplate[i] = (priorityTemplate[i] + "_" + new String(priorityTemplate[i].Reverse().ToArray())).ToString();
+        }
+        
+        string priokeys = "0123456789ABCDEF";
+        Dictionary<char, byte> prioForKey = new Dictionary<char, byte>();
+        priokeys.ToCharArray().Select((c, i) =>
+        {
+            prioForKey.Add(c, (byte)i);
+            return 0;
+        }).ToArray();
+        
+        string[] fitMeterTemplateMain = new string[]
+        {
+            "*LLL*",
+            "*MLM*",
+            "*M*M*",
+            "*MLM*",
+            "*LLL*",
+        };
+        
+        string[] fitMeterTemplateLow = new string[]
+        {
+            "LLLLL",
+            "**L**",
+            "*M*M*",
+            "**L**",
+            "LLLLL",
+        };
+        string[] fitMeterTemplateUp = new string[]
+        {
+            "**L**",
+            "**L**",
+            "*M*M*",
+            "**L**",
+            "**L**",
+        };
+        string[] fitMeterTemplatepinky = new string[]
+        {
+            "*****",
+            "*LLL*",
+            "ML*LM",
+            "*LLL*",
+            "*****",
         };
 
+        string[] locationNames = new string[]
+        {
+            //"107886_688701",
+            //"1AABA7_7ABAA1",
+            //"_23881_18832_",
+            
+            "ppmmmp",
+            "plmmmp",
+            "pmmmmp",
+        };
+        for (var i = 0; i < locationNames.Length; i++)
+            locationNames[i] = (locationNames[i] + "_" + new String(locationNames[i].Reverse().ToArray())).ToString();
+        
+        Dictionary<char, string[]> patternAtLocation = new();
+        patternAtLocation.Add('p',fitMeterTemplatepinky);
+        patternAtLocation.Add('m',fitMeterTemplateMain);
+        patternAtLocation.Add('u',fitMeterTemplateUp);
+        patternAtLocation.Add('l',fitMeterTemplateLow);
+
+        
+        
+        int yrange = (fitMeterTemplateMain.Length-1)/2;
+        int xrange = (fitMeterTemplateMain[0].Length-1)/2;
+        (int x, int y) center = (x: xrange, y: yrange);
+        
 
         var w = baseline[0].Length;
         var h = baseline.Length;
@@ -81,7 +154,7 @@ public class Analyzer
                 chars[i, k] = c;
 
                 if (priorityTemplate[k][i] != SKIP)
-                    priority[i, k] = Convert.ToByte(priorityTemplate[k][i].ToString()); //wtf char no longer converts?
+                    priority[i, k] = prioForKey[priorityTemplate[k][i]];//Convert.ToHexString(priorityTemplate[k][i].ToString()); //wtf char no longer converts?
 
                 if (c != SKIP && c != NONE)
                 {
@@ -94,8 +167,6 @@ public class Analyzer
         }
 
         //scan ranges for next cell detection and nearby detection
-        int yrange = 1;
-        int xrange = 1;
 
         bool IsValid(int x, int y) => x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP;
 
@@ -105,6 +176,8 @@ public class Analyzer
         bool IsValidEmpty(int x, int y) =>
             x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] == NONE;
 
+        
+        
         int CellWeight(int x, int y)
         {
             int weight = 0;
@@ -123,53 +196,69 @@ public class Analyzer
             return weight;
         }
 
-
-        (int x, int y) center = (x: 2, y: 2);
-        string[] fitMeterTemplateRC = new string[]
-        {
-            "*LLL*",
-            "MMLMM",
-            "MM*MM",
-            "MMLMM",
-            "*LLL*",
-        };
-
         const char IGNOR = '*';
         const char MAXIMIZE = 'M';
         const char MINIMIZE = 'L';
+        const char MaxBefore = 'B';
+        const char MinBefore = 'b';
+        const char MaxAfter = 'A';
+        const char MinAfter = 'a';
 
         //bigger score = more acceptable key is.
         float MeterAdjacencyFitScore(char candidate, char neighbor, char mode)
         {
             switch (mode)
             {
+                //Djacency (after,before)
+                
                 case IGNOR:
                     return 0;
                 case MAXIMIZE:
                     return _data.adjacencyMetric[_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)];
                 case MINIMIZE:
-                    var res = -1*_data.adjacencyMetric.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
-                    return res;
+                    return -1*_data.adjacencyMetric.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+                case MaxAfter: // marked after candidate
+                    return _data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate)});
+                case MinAfter: 
+                    return -1*_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate)});
+                case MaxBefore: // marked before candidate
+                    return _data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+                case MinBefore: 
+                    return -1*_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+
+
+                
                 default:
                     return 0;
             }
         }
 
-        float GetAdjacencyScore(int x, int y, char candidate)
+        ///
+        /// returns normalized wieght: sum/count.
+        float GetPlacementScoreForKey(int x, int y, char candidate)
         {
             float score = 0;
+            int cellcount = 0;
+            StringBuilder neighbors = new StringBuilder();
+            var locationName = locationNames[y][x];
+            var pattern = patternAtLocation[locationName];
+            
             for (int i = -xrange; i <= xrange; i++)
             {
                 for (int k = -yrange; k <= yrange; k++)
                 {
                     if (IsValidChar(x + i, y + k))
                     {
-                        var mode = fitMeterTemplateRC[center.y + k][center.x + i]; //not converted in RC format.
+                        var mode = pattern[center.y + k][center.x + i]; //not converted in RC format.
                         score += MeterAdjacencyFitScore(candidate, chars[i + x, k + y], mode);
+                        neighbors.Append(chars[i + x, k + y]).Append(":"+ mode).Append(" ");
+                        cellcount++;
                     }
                 }
             }
-            return score;
+
+            Console.Write(candidate.ToString() + score / cellcount+" "+ neighbors.ToString() +"|");
+            return score/cellcount;
         }
 
 
@@ -220,6 +309,11 @@ public class Analyzer
         {
             while (!String.IsNullOrEmpty(unparsedYet))
             {
+                //GetBatch;
+                var batch = GetCandidatePositions();
+                if (batch.Count < 1)
+                    break;
+
                 var maxCount = 0;
                 char nextC = '\0';
                 foreach (var c in unparsedYet.ToCharArray())
@@ -230,11 +324,7 @@ public class Analyzer
                         nextC = c;
                     }
                 }
-
-                var batch = GetCandidatePositions();
-                if (batch.Count < 1)
-                    break;
-
+                
                 var bestcoord = batch[0];
                 float maxRate = 0;
                 foreach (var coord in batch)
@@ -243,7 +333,7 @@ public class Analyzer
                     // var matchStatic = GetNearChars(coord.x, coord.y);
                     // var (selfchar, weight) = LessAdjacentForAllWMetric(matchStatic, nextC.ToString());
                     
-                    var weight = GetAdjacencyScore(coord.x, coord.y, nextC);
+                    var weight = GetPlacementScoreForKey(coord.x, coord.y, nextC);
                     
                     if (weight > maxRate)
                     {

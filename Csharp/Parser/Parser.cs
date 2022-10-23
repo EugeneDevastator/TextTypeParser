@@ -10,6 +10,13 @@ using NumSharp;
 
 public class Parser
 {
+    
+    /// TODO:
+    /// add additional data per leter.
+    /// f(char,int) = count of letter at word pos;
+    /// f(char,int) = count of intellisense pos e.x.: BackEnd = 01230123
+    /// weight calculation bust be normalized per set? w=/wtotal.
+
     private char[] typableChars => _keyData.typable.ToCharArray();
     private string[] typableNames => _keyData.typableNames;
 
@@ -58,7 +65,7 @@ public class Parser
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
         ExtractDataAllChars(text);
-        ExtractDataAllCharsFirstNOfWord(text, 3);
+        //ExtractDataAllCharsFirstNOfWord(text, 4);
         WriteDataFiles();
         WriteSortedAdjacency();
         WriteSortedAdjacencyAny();
@@ -219,7 +226,7 @@ public class Parser
 
             void ParseOneWord(string word)
             {
-                //AddWordTerminator(word);
+                AddWordTerminator(word);
 
                 //skip empty words for now.
                 if (!Letters.Contains(word[0]))
@@ -274,12 +281,12 @@ public class Parser
                         ic = ib;
                         ib = ia;
                         ia = typIndices[keyOfSym];
-
+                        //cba
                         if (kc != '\0')
-                            adjFloatOne[ia, ic] += 1;
+                            adjFloatOne[ic, ia] += 1;
 
                         if (kb != '\0')
-                            adjFloatZero[ib, ic] += 1;
+                            adjFloatZero[ib, ia] += 1;
                                                         
                         AddCountData(ia);
                         
@@ -306,7 +313,11 @@ public class Parser
 
             allofthem.Append(File.ReadAllText(f.FullName));
         }
-        return allofthem.ToString();
+
+        var result = allofthem.ToString();
+        File.WriteAllText(Path.Combine(Constants.rootPath,"All.txt"),result);
+        return result;
+        
     } 
     
     private void ExtractDataAllChars(string content)
@@ -315,7 +326,7 @@ public class Parser
             int pos = 0;
             char ka = '\0', kb = '\0', kc = '\0';
             byte ia = 0, ib = 0, ic = 0;
-            char c = '\0';
+            char key = '\0';
             float totalSize = content.Length;
             foreach (var cr in content.ToCharArray())
             {
@@ -326,20 +337,25 @@ public class Parser
 
                 if (_symbolMap.VisualSymbols.Contains(cr))
                 {
-                    c = _symbolMap.VisualToKey(cr);
+                    key = _symbolMap.VisualToKey(cr);
                     kc = kb;
                     kb = ka;
-                    ka = c;
+                    ka = key;
 
                     ic = ib;
                     ib = ia;
-                    ia = typIndices[c];
-
+                    ia = typIndices[key];
+                    
+                    AddCountData(typIndices[key]);
+                    //Fir: a = F
+                    //b=F
+                    //a=i
+                    //c=F, b=i, a=r
                     if (kc != '\0')
-                    {
-                        AddAdjacencyData(ia, ib, ic);
-                        AddCountData(ic);
-                    }
+                        adjFloatOne[ic, ia] += 1;
+
+                    if (kb != '\0')
+                        adjFloatZero[ib, ia] += 1;
                 }
                 else
                 {
@@ -349,11 +365,11 @@ public class Parser
         }
     }
 
-    private void AddAdjacencyData(byte ia, byte ib, byte ic)
+    private void AddAdjacencyData(byte ione, byte itwo, byte itri)
     {
         //so turns out numpy sucks at setting values..
-        adjFloatOne[ia, ic] += 1;
-        adjFloatZero[ib, ic] += 1;
+        adjFloatOne[ione, itri] += 1;
+        adjFloatZero[itwo, itri] += 1;
     }
 
     private void AddCountData(byte idx)

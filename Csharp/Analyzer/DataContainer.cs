@@ -15,6 +15,7 @@ public class DataContainer
     public NDArray adjacencyMetric;
     public string _keys;
 
+    
     public DataContainer()
     {
         adjacencyZero = np.load(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile));
@@ -48,7 +49,9 @@ public class DataContainer
         {
             for (int i = k + 1; i < adjacencyOne.shape[0]; i++)
             {
-                adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.4f;
+                //adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.1f;
+                adjacencyMetric[i, k] =
+                    (counts[i] + counts[k]) / (adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.2f);
             }
         }
     }

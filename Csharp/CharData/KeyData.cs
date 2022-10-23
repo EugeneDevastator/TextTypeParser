@@ -19,6 +19,7 @@ public class KeyData
         { '-', "minus" },
         { '[', "lbr" },
         { ']', "rbr" },
+        { '*', "non" },
     };
 
     public string[] typableNames;

@@ -51,7 +51,7 @@ public class DataContainer
             {
                 //adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.1f;
                 adjacencyMetric[i, k] =
-                    (counts[i] + counts[k]) / (adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.2f);
+                    (counts[i] + counts[k]) / (adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]);
             }
         }
     }

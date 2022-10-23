@@ -126,7 +126,7 @@ public class Parser
             output.Append(typableNames[k]).Append(";");
             for (var i = 0; i < typable.Length; i++)
             {
-                output.Append(adjacencyOne[i, k].ToString()).Append(";");
+                output.Append((adjacencyOne[i, k]+adjacencyOne[k, i]).ToString()).Append(";");
             }
 
             output.Append("\n");

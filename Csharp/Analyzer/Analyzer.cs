@@ -50,10 +50,11 @@ public class Analyzer
             //"_*hc*w_*lu**_",
             //"*arstf_*neio*",
             //"_***p*_*****_",
-            "_****___****_",
+            "_*****_*****_",
             "_*rst*_*nei*_",
             "*a****_****o*",
         };
+
 
         string[] priorityTemplate = new string[]
         {
@@ -61,9 +62,9 @@ public class Analyzer
             //"1AABA7_7ABAA1",
             //"_23881_18832_",
             
-            "018880",
-            "08ABA3",
-            "2A8883",
+            "018882",
+            "08ABA8",
+            "2A8888",
         };
         for (var i = 0; i < priorityTemplate.Length; i++)
         {
@@ -99,17 +100,17 @@ public class Analyzer
         {
             "**L**",
             "**L**",
-            "*M*M*",
+            "*****",
             "**L**",
             "**L**",
         };
         string[] fitMeterTemplatepinky = new string[]
         {
-            "*****",
+            "**L**",
             "*LLL*",
-            "ML*LM",
+            "*L*L*",
             "*LLL*",
-            "*****",
+            "**L**",
         };
 
         string[] locationNames = new string[]
@@ -118,9 +119,9 @@ public class Analyzer
             //"1AABA7_7ABAA1",
             //"_23881_18832_",
             
-            "ppmmmp",
-            "plmmmp",
-            "pmmmmp",
+            "ppuuup",
+            "pummmp",
+            "pmuuup",
         };
         for (var i = 0; i < locationNames.Length; i++)
             locationNames[i] = (locationNames[i] + "_" + new String(locationNames[i].Reverse().ToArray())).ToString();
@@ -238,7 +239,7 @@ public class Analyzer
         float GetPlacementScoreForKey(int x, int y, char candidate)
         {
             float score = 0;
-            int cellcount = 0;
+            float cellcount = 0;
             StringBuilder neighbors = new StringBuilder();
             var locationName = locationNames[y][x];
             var pattern = patternAtLocation[locationName];
@@ -250,9 +251,13 @@ public class Analyzer
                     if (IsValidChar(x + i, y + k))
                     {
                         var mode = pattern[center.y + k][center.x + i]; //not converted in RC format.
-                        score += MeterAdjacencyFitScore(candidate, chars[i + x, k + y], mode);
-                        neighbors.Append(chars[i + x, k + y]).Append(":"+ mode).Append(" ");
-                        cellcount++;
+                        var neigh = chars[i + x, k + y];
+                        if (mode != NONE)
+                        {
+                            score += MeterAdjacencyFitScore(candidate, neigh, mode);
+                            neighbors.Append(neigh).Append(":" + mode).Append(" ");
+                            cellcount++;
+                        }
                     }
                 }
             }

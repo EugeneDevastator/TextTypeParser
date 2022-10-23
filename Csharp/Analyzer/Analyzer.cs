@@ -215,17 +215,19 @@ public class Analyzer
                 case IGNOR:
                     return 0;
                 case MAXIMIZE:
-                    return _data.adjacencyMetric[_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)];
+                    return 1*_data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
                 case MINIMIZE:
-                    return -1*_data.adjacencyMetric.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+                    return -1*_data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
+                
                 case MaxAfter: // marked after candidate
-                    return _data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate)});
+                    return 1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate));
                 case MinAfter: 
-                    return -1*_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate)});
+                    return -1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate));
+                
                 case MaxBefore: // marked before candidate
-                    return _data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+                    return 1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
                 case MinBefore: 
-                    return -1*_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor)});
+                    return -1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
 
 
                 
@@ -326,18 +328,17 @@ public class Analyzer
 
                 var bestcoord = batch[0];
                 var bestChar = batchChars[0];
-                float maxRate = 0;
+                float maxRate = int.MinValue;
                 
                 foreach (var bc in batchChars)
                 {
-                    var nextC =bc;
                     foreach (var coord in batch)
                     {
                         //previous matcher
                         // var matchStatic = GetNearChars(coord.x, coord.y);
                         // var (selfchar, weight) = LessAdjacentForAllWMetric(matchStatic, nextC.ToString());
 
-                        var weight = GetPlacementScoreForKey(coord.x, coord.y, nextC);
+                        var weight = GetPlacementScoreForKey(coord.x, coord.y, bc);
 
                         if (weight > maxRate)
                         {

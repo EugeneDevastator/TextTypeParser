@@ -1,12 +1,18 @@
-﻿
-using System;
+﻿using System;
 using CharData;
+using Combinatorics.Collections;
 using MainApp;
+using NumSharp;
 
-Console.WriteLine("Hello, World!");
-var analyzer =new Analyzer();
 
-//analyzer.LessAdjacentForEach("arst","clip");
-//analyzer.LessAdjacentForAll("arsjlm","hbdycwfk");
+var analyzer = new Analyzer();
 analyzer.GenerateLayout();
 
+//test perms.
+var a = "abc".ToCharArray();
+var idx = a.Select((c, i) => i).ToArray();
+var prm = new Permutations<int>(idx,GenerateOption.WithoutRepetition);
+foreach (var p in prm)
+{
+    Console.WriteLine(p.Select(v => a[v]).ToArray());
+}

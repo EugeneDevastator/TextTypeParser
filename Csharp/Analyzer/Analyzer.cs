@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Security.Principal;
 using System.Text;
 using CharData;
+using Combinatorics.Collections;
 using MainApp;
 using NumSharp;
 
@@ -31,9 +32,9 @@ public class Analyzer
     public void GenerateLayout()
     {
         // vi:
-       // Console.WriteLine(_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf('i'),_keyData.IdxOf('v')}));
-       // return;
-        
+        // Console.WriteLine(_data.adjacencyZero.GetSingle(new[]{_keyData.IdxOf('i'),_keyData.IdxOf('v')}));
+        // return;
+
         string unparsedYet = _keyData.typable;
 
         string unuse = " \\-90[]=/";
@@ -61,16 +62,21 @@ public class Analyzer
             //"107886_688701",
             //"1AABA7_7ABAA1",
             //"_23881_18832_",
+// per-col good
+            //"017895",
+            //"09ABA5",
+            //"5A7895",
             
-            "018882",
-            "08ABA8",
-            "2A8888",
+            "017885",
+            "08ABA5",
+            "5A7885",
         };
         for (var i = 0; i < priorityTemplate.Length; i++)
         {
-            priorityTemplate[i] = (priorityTemplate[i] + "_" + new String(priorityTemplate[i].Reverse().ToArray())).ToString();
+            priorityTemplate[i] = (priorityTemplate[i] + "_" + new String(priorityTemplate[i].Reverse().ToArray()))
+                .ToString();
         }
-        
+
         string priokeys = "0123456789ABCDEF";
         Dictionary<char, byte> prioForKey = new Dictionary<char, byte>();
         priokeys.ToCharArray().Select((c, i) =>
@@ -78,7 +84,7 @@ public class Analyzer
             prioForKey.Add(c, (byte)i);
             return 0;
         }).ToArray();
-        
+
         string[] fitMeterTemplateMain = new string[]
         {
             "*LLL*",
@@ -87,7 +93,7 @@ public class Analyzer
             "*MLM*",
             "*LLL*",
         };
-        
+
         string[] fitMeterTemplateLow = new string[]
         {
             "LLLLL",
@@ -98,19 +104,19 @@ public class Analyzer
         };
         string[] fitMeterTemplateUp = new string[]
         {
-            "**L**",
+            "**D**",
             "**L**",
             "*****",
             "**L**",
-            "**L**",
+            "**D**",
         };
         string[] fitMeterTemplatepinky = new string[]
         {
-            "**L**",
-            "*LLL*",
-            "*L*L*",
-            "*LLL*",
-            "**L**",
+            "MLLLM",
+            "MLLLM",
+            "ML*LM",
+            "MLLLM",
+            "MLLLM",
         };
 
         string[] locationNames = new string[]
@@ -118,26 +124,25 @@ public class Analyzer
             //"107886_688701",
             //"1AABA7_7ABAA1",
             //"_23881_18832_",
-            
+
             "ppuuup",
-            "pummmp",
+            "ppmmmp",
             "pmuuup",
         };
         for (var i = 0; i < locationNames.Length; i++)
             locationNames[i] = (locationNames[i] + "_" + new String(locationNames[i].Reverse().ToArray())).ToString();
-        
-        Dictionary<char, string[]> patternAtLocation = new();
-        patternAtLocation.Add('p',fitMeterTemplatepinky);
-        patternAtLocation.Add('m',fitMeterTemplateMain);
-        patternAtLocation.Add('u',fitMeterTemplateUp);
-        patternAtLocation.Add('l',fitMeterTemplateLow);
 
-        
-        
-        int yrange = (fitMeterTemplateMain.Length-1)/2;
-        int xrange = (fitMeterTemplateMain[0].Length-1)/2;
+        Dictionary<char, string[]> patternAtLocation = new();
+        patternAtLocation.Add('p', fitMeterTemplatepinky);
+        patternAtLocation.Add('m', fitMeterTemplateMain);
+        patternAtLocation.Add('u', fitMeterTemplateUp);
+        patternAtLocation.Add('l', fitMeterTemplateLow);
+
+
+        int yrange = (fitMeterTemplateMain.Length - 1) / 2;
+        int xrange = (fitMeterTemplateMain[0].Length - 1) / 2;
         (int x, int y) center = (x: xrange, y: yrange);
-        
+
 
         var w = baseline[0].Length;
         var h = baseline.Length;
@@ -155,7 +160,9 @@ public class Analyzer
                 chars[i, k] = c;
 
                 if (priorityTemplate[k][i] != SKIP)
-                    priority[i, k] = prioForKey[priorityTemplate[k][i]];//Convert.ToHexString(priorityTemplate[k][i].ToString()); //wtf char no longer converts?
+                    priority[i, k] =
+                        prioForKey
+                            [priorityTemplate[k][i]]; //Convert.ToHexString(priorityTemplate[k][i].ToString()); //wtf char no longer converts?
 
                 if (c != SKIP && c != NONE)
                 {
@@ -173,12 +180,11 @@ public class Analyzer
 
         bool IsValidChar(int x, int y) =>
             x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] != NONE;
-        
+
         bool IsValidEmpty(int x, int y) =>
             x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] == NONE;
 
-        
-        
+
         int CellWeight(int x, int y)
         {
             int weight = 0;
@@ -200,6 +206,7 @@ public class Analyzer
         const char IGNOR = '*';
         const char MAXIMIZE = 'M';
         const char MINIMIZE = 'L';
+        const char MINIMIZEx2 = 'D';
         const char MaxBefore = 'B';
         const char MinBefore = 'b';
         const char MaxAfter = 'A';
@@ -211,26 +218,27 @@ public class Analyzer
             switch (mode)
             {
                 //Djacency (after,before)
-                
+
                 case IGNOR:
                     return 0;
                 case MAXIMIZE:
-                    return 1*_data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
+                    return _data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
                 case MINIMIZE:
-                    return -1*_data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
-                
+                    return -1 * _data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                case MINIMIZEx2:
+                    return -2 * _data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+
                 case MaxAfter: // marked after candidate
-                    return 1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate));
-                case MinAfter: 
-                    return -1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor),_keyData.IdxOf(candidate));
-                
+                    return 1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor), _keyData.IdxOf(candidate));
+                case MinAfter:
+                    return -1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor), _keyData.IdxOf(candidate));
+
                 case MaxBefore: // marked before candidate
-                    return 1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
-                case MinBefore: 
-                    return -1*_data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate),_keyData.IdxOf(neighbor));
+                    return 1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                case MinBefore:
+                    return -1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
 
 
-                
                 default:
                     return 0;
             }
@@ -245,7 +253,7 @@ public class Analyzer
             StringBuilder neighbors = new StringBuilder();
             var locationName = locationNames[y][x];
             var pattern = patternAtLocation[locationName];
-            
+
             for (int i = -xrange; i <= xrange; i++)
             {
                 for (int k = -yrange; k <= yrange; k++)
@@ -257,15 +265,13 @@ public class Analyzer
                         if (mode != NONE)
                         {
                             score += MeterAdjacencyFitScore(candidate, neigh, mode);
-                            neighbors.Append(neigh).Append(":" + mode).Append(" ");
                             cellcount++;
                         }
                     }
                 }
             }
-
-            Console.Write(candidate.ToString() + score / cellcount+" "+ neighbors.ToString() +"|");
-            return score/cellcount;
+            //Console.Write(candidate.ToString() + score / cellcount + " " + neighbors.ToString() + "|");
+            return score / cellcount;
         }
 
 
@@ -312,6 +318,58 @@ public class Analyzer
             return batchCoords;
         }
 
+        void GenerateLayoutByVariationScore()
+        {
+            while (!String.IsNullOrEmpty(unparsedYet))
+            {
+                //GetBatch;
+                var batch = GetCandidatePositions();
+                if (batch.Count < 1)
+                    break;
+
+                //get batch symbols
+                var orderedChars = unparsedYet.ToCharArray().OrderByDescending(c => counts.GetInt64(typIndices[c]));
+                var arr = new string(orderedChars.ToArray()).ToCharArray();
+                int trytoadd = 0;
+                int toAdd = Math.Min(arr.Length, trytoadd + batch.Count);
+                var batchChars = arr[..toAdd];
+
+                float maxRate = int.MinValue;
+
+                //var idx = a.Select((c, i) => i).ToArray();
+                var permutations = new Permutations<char>(batchChars,GenerateOption.WithoutRepetition);
+                IReadOnlyList<char> bestPerm = null;
+               // Console.WriteLine("Perms for batch:" + permutations.Count);
+                float maxWeight = int.MinValue;
+                foreach (var permutation in permutations)
+                {
+                    //we need to fit all characters before any calculations....
+                    foreach (var (coord, bchar) in batch.Zip(permutation))
+                        chars[coord.x, coord.y] = bchar;
+
+                    float permweight = 0;
+                    foreach (var (coord, bchar) in batch.Zip(permutation))
+                    {
+                        permweight += GetPlacementScoreForKey(coord.x, coord.y, bchar);
+                    }
+
+                    if (permweight > maxWeight)
+                    {
+                        bestPerm = permutation;
+                        maxWeight = permweight;
+                    }
+                }
+
+                // update it.
+                foreach (var (coord, bchar) in batch.Zip(bestPerm))
+                {
+                    chars[coord.x, coord.y] = bchar;
+                    lCounts[coord.x, coord.y] = counts[typIndices[bchar]];
+                    unparsedYet = unparsedYet.Replace(bchar.ToString(), String.Empty);
+                }
+            }
+        }
+
         void GenerateLayoutByLetterAndBatches()
         {
             while (!String.IsNullOrEmpty(unparsedYet))
@@ -329,7 +387,7 @@ public class Analyzer
                 var bestcoord = batch[0];
                 var bestChar = batchChars[0];
                 float maxRate = int.MinValue;
-                
+
                 foreach (var bc in batchChars)
                 {
                     foreach (var coord in batch)
@@ -420,7 +478,8 @@ public class Analyzer
 
 
         //GenerateLayoutByEmptyWeightFirst();
-        GenerateLayoutByLetterAndBatches();
+        //GenerateLayoutByLetterAndBatches();
+        GenerateLayoutByVariationScore();
         PrintRaw();
         Console.WriteLine();
         PrintForTable();

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
+using CharData;
 using MainApp;
 using NumSharp;
 
@@ -34,15 +35,17 @@ public class Parser
     //private Dictionary<char, int> typableCounts = new Dictionary<char, int>();
     private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices;
     private string typable => _keyData.typable;
-    private CharData.KeyData _keyData;
+    private KeyData _keyData;
     private SymbolMap _symbolMap;
+    private WordSplitter _worder;
 
     public Parser()
     {
         _symbolMap = new SymbolMap();
+        _worder = new WordSplitter(_symbolMap);
         Console.WriteLine(_symbolMap.UniqueKeys.ToString());
 
-        _keyData = new CharData.KeyData(_symbolMap.UniqueKeys);
+        _keyData = new KeyData(_symbolMap.UniqueKeys);
 
         adjacencyZero = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
         adjacencyOne = np.zeros((typable.Length, typable.Length), NPTypeCode.Float);
@@ -59,21 +62,32 @@ public class Parser
         }
     }
 
+    private bool IsValid(char c) => _symbolMap.VisualSymbols.Contains(c);
+    private int IndexOf(char c) => typIndices[_symbolMap.VisualToKey(c)];
+    
     public void Parse()
     {
         DirectoryInfo d = new DirectoryInfo(Constants.parsePath); //Assuming Test is your Folder
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
-        ExtractDataAllChars(text);
+        //GetCrumbs(text,99);
+        ExtractCrumbData(text,3);
+        //ExtractDataAllChars(text);
         //ExtractDataAllCharsFirstNOfWord(text, 4);
         WriteDataFiles();
-        WriteSortedAdjacency();
-        WriteSortedAdjacencyAny();
-        WriteAdjacency();
-        WriteAdjacencyAny();
+        WriteTables();
         WriteCounts();
     }
 
+    private void WriteTables()
+    {
+        WriteCounts();
+        WriteAdjTable(adjacencyZero, "AdjZeroDir.csv", "ADJ ZERO DIR");
+        WriteAdjTable(adjacencyZero+adjacencyZero.transpose(), "AdjZeroAny.csv", "ADJ ZERO any");
+        WriteAdjTable(adjacencyOne, "AdjOneDir.csv", "ADJ ONE DIR");
+        WriteAdjTable(adjacencyOne+adjacencyOne.transpose(), "AdjOneDir.csv", "ADJ ONE any");
+    }
+    
     private void WriteDataFiles()
     {
         for (int i = 0; i < typable.Length; i++)
@@ -90,73 +104,73 @@ public class Parser
         np.save(Path.Combine(Constants.rootPath, Constants.CountsDatafile), np.asarray(typableCounts));
         File.WriteAllText(Path.Combine(Constants.rootPath, Constants.KeySetData), typable);
     }
-
-    private void WriteAdjacency()
-    {
-        StringBuilder output = new StringBuilder();
-        output.Append("DIR ADJ;");
-        for (int k = 0; k < typable.Length; k++)
-            output.Append(typableNames[k]).Append(";");
-        output.Append("\n");
-
-        for (int k = 0; k < typable.Length; k++)
-        {
-            output.Append(typableNames[k]).Append(";");
-            for (var i = 0; i < typable.Length; i++)
-            {
-                output.Append(adjacencyZero[i, k].ToString()).Append(";");
-            }
-
-            output.Append("\n");
-        }
-
-        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.adjDirectName), output.ToString());
-    }
-
     private void WriteAdjacencyAny()
     {
-        StringBuilder output = new StringBuilder();
-        output.Append("BIDIR ADJ;");
-        for (int k = 0; k < typable.Length; k++)
-            output.Append(typableNames[k]).Append(";");
-        output.Append("\n");
-
-        for (int k = 0; k < typable.Length; k++)
-        {
-            output.Append(typableNames[k]).Append(";");
-            for (var i = 0; i < typable.Length; i++)
-            {
-                output.Append((adjacencyOne[i, k]+adjacencyOne[k, i]).ToString()).Append(";");
-            }
-
-            output.Append("\n");
-        }
-
-        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.adjRawName), output.ToString());
+        WriteAdjTable(adjacencyZero + adjacencyZero.transpose(),  Constants.adjZeroAnyName, "sdf");
+        // StringBuilder output = new StringBuilder();
+        // output.Append("BIDIR ADJ;");
+        // for (int k = 0; k < typable.Length; k++)
+        //     output.Append(typableNames[k]).Append(";");
+        // output.Append("\n");
+//
+        // for (int k = 0; k < typable.Length; k++)
+        // {
+        //     output.Append(typableNames[k]).Append(";");
+        //     for (var i = 0; i < typable.Length; i++)
+        //     {
+        //         output.Append((adjacencyOne[i, k]+adjacencyOne[k, i]).ToString()).Append(";");
+        //     }
+//
+        //     output.Append("\n");
+        // }
+//
+        // File.WriteAllText(Path.Combine(Constants.rootPath, Constants.adjRawName), output.ToString());
     }
 
     private void WriteSortedAdjacency()
     {
+        //WriteAdj(adjacencyZero,Constants.sortedDirectAdjName)
+      // StringBuilder output = new StringBuilder();
+      // output.Append("SORT DIR ADJ;");
+
+      // for (int k = 0; k < typable.Length; k++)
+      // {
+      //     var idx = adjacencyZero[k].argsort<float>();
+      //     var sVals = adjacencyZero[k][idx];
+
+      //     output.Append(typableNames[k]).Append(";");
+      //     for (int i = 0; i < typable.Length; i++)
+      //         output.Append(typableNames[idx[i]]).Append(";");
+      //     output.Append('\n');
+
+      //     output.Append(typableNames[k]).Append(";");
+      //     for (int i = 0; i < typable.Length; i++)
+      //         output.Append(sVals[i].ToString()).Append(";");
+      //     output.Append('\n');
+      // }
+
+      // File.WriteAllText(Path.Combine(Constants.rootPath, Constants.sortedDirectAdjName), output.ToString());
+    }
+
+    private void WriteAdjTable(NDArray table, string fname, string header)
+    {
         StringBuilder output = new StringBuilder();
-        output.Append("SORT DIR ADJ;");
+        output.Append(header+";");
+        for (int k = 0; k < typable.Length; k++)
+            output.Append(typableNames[k]).Append(";");
+        output.Append("\n");
 
         for (int k = 0; k < typable.Length; k++)
         {
-            var idx = adjacencyZero[k].argsort<float>();
-            var sVals = adjacencyZero[k][idx];
-
             output.Append(typableNames[k]).Append(";");
-            for (int i = 0; i < typable.Length; i++)
-                output.Append(typableNames[idx[i]]).Append(";");
-            output.Append('\n');
-
-            output.Append(typableNames[k]).Append(";");
-            for (int i = 0; i < typable.Length; i++)
-                output.Append(sVals[i].ToString()).Append(";");
-            output.Append('\n');
+            for (var i = 0; i < typable.Length; i++)
+            {
+                output.Append((table[i, k]).ToString()).Append(";");
+            }
+            output.Append("\n");
         }
 
-        File.WriteAllText(Path.Combine(Constants.rootPath, Constants.sortedDirectAdjName), output.ToString());
+        File.WriteAllText(Path.Combine(Constants.rootPath, fname), output.ToString());
     }
 
     private void WriteSortedAdjacencyAny()
@@ -283,15 +297,27 @@ public class Parser
                         ia = typIndices[keyOfSym];
                         //cba
                         if (kc != '\0')
+                        {
                             adjFloatOne[ic, ia] += 1;
+                            Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
+                        }
 
                         if (kb != '\0')
+                        {
                             adjFloatZero[ib, ia] += 1;
-                                                        
+                            Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
+                        }
+
                         AddCountData(ia);
                         
                         if (sampleOut.Length < 3000)
                             sampleOut.Append(cr);
+                    }
+                    else // hit the separator.
+                    {
+                        kc = '\0';
+                        kb = '\0';
+                        ka = '\0';
                     }
                 }
             }
@@ -318,7 +344,53 @@ public class Parser
         File.WriteAllText(Path.Combine(Constants.rootPath,"All.txt"),result);
         return result;
         
-    } 
+    }
+
+    private void GetCrumbs(string content, int nchars)
+    {
+        foreach (var word in _worder.WordsOf(content,true))
+        {
+            //Console.Write(word +"|");
+            foreach (var crumb in _worder.IntelCrumbsOf(word,3))
+            {
+                foreach (var adj in _worder.AdjOf(crumb))
+                {
+                    Console.Write(adj+"|");    
+                }
+            }
+        }
+    }
+
+    private void ExtractCrumbData(string content, int range)
+    {
+        foreach (var word in _worder.WordsOf(content,true))
+        {
+            //Console.Write(word +"|");
+            foreach (var crumb in _worder.IntelCrumbsOf(word,3))
+            {
+                foreach (var pair in _worder.AdjOf(crumb))
+                {
+                    switch (pair.spread)
+                    {
+                        case -1:
+                            if (IsValid(pair.a))
+                                AddCountData(pair.a);
+                            break;
+                        case 0:
+                            if (IsValid(pair.a) && IsValid(pair.b))
+                                AddAdjacencyZero(pair.a,pair.b);
+                            break;
+                        case 1:
+                            if (IsValid(pair.a) && IsValid(pair.b))
+                                AddAdjacencyOne(pair.a,pair.b);
+                            break;
+                        default:
+                            break;
+                    } 
+                }
+            }
+        }
+    }
     
     private void ExtractDataAllChars(string content)
     {
@@ -352,19 +424,37 @@ public class Parser
                     //a=i
                     //c=F, b=i, a=r
                     if (kc != '\0')
+                    {
                         adjFloatOne[ic, ia] += 1;
+                        Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
+                    }
 
                     if (kb != '\0')
+                    {
                         adjFloatZero[ib, ia] += 1;
-                }
-                else
-                {
-                    kc = ka = kb = '\0';
+                        Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
+                    }
+                    if (_symbolMap.WordSeparators.Contains(cr))
+                    {
+                        kc = ka = kb = '\0';
+                    }
                 }
             }
         }
     }
 
+    private void AddAdjacencyOne(char first, char next)
+    {
+        //so turns out numpy sucks at setting values..
+        adjFloatOne[IndexOf(first), IndexOf(next)] += 1;
+    }
+    
+    private void AddAdjacencyZero(char first, char next)
+    {
+        //so turns out numpy sucks at setting values..
+        adjFloatZero[IndexOf(first), IndexOf(next)] += 1;
+    }
+    
     private void AddAdjacencyData(byte ione, byte itwo, byte itri)
     {
         //so turns out numpy sucks at setting values..
@@ -372,6 +462,11 @@ public class Parser
         adjFloatZero[itwo, itri] += 1;
     }
 
+    private void AddCountData(char c)
+    {
+        typableCounts[IndexOf(c)] += 1;
+    }
+    
     private void AddCountData(byte idx)
     {
         typableCounts[idx] += 1;

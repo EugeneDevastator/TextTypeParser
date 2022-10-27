@@ -17,4 +17,10 @@
       <ProjectReference Include="..\Parser\Parser.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Generator" />
+      <Folder Include="Layout" />
+      <Folder Include="Sampler" />
+    </ItemGroup>
+
 </Project>

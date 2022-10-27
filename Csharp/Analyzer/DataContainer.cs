@@ -15,7 +15,7 @@ public class DataContainer
     public NDArray adjacencyMetric;
     public string _keys;
 
-    
+
     public DataContainer()
     {
         adjacencyZero = np.load(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile));
@@ -26,20 +26,20 @@ public class DataContainer
         adjacencyZeroAny = adjacencyZero.copy();
         adjacencyOneAny = adjacencyOne.copy();
         adjacencyMetric = adjacencyOne.copy();
-        
+
         //generate melt adjacencies;
         for (int k = 0; k < adjacencyOne.shape[1]; k++)
         {
-            for (int i = k+1; i < adjacencyOne.shape[0]; i++)
+            for (int i = k + 1; i < adjacencyOne.shape[0]; i++)
             {
                 adjacencyOneAny[i, k] += adjacencyOneAny[k, i];
                 adjacencyOneAny[k, i] = adjacencyOneAny[i, k];
-                
+
                 adjacencyZeroAny[i, k] += adjacencyZeroAny[k, i];
                 adjacencyZeroAny[k, i] = adjacencyZeroAny[i, k];
             }
         }
-        
+
         GenerateMetricAdj();
     }
 
@@ -50,9 +50,16 @@ public class DataContainer
             for (int i = k + 1; i < adjacencyOne.shape[0]; i++)
             {
                 //adjacencyMetric[i, k] = adjacencyZeroAny[i, k] + adjacencyOneAny[i, k]*0.1f;
+                if (adjacencyZeroAny[i, k] == 0)
+                {
+                    adjacencyMetric[i, k] = 0;
+                    continue;
+                }
+
                 adjacencyMetric[i, k] =
-                    ((counts[i] + counts[k]) / (adjacencyZeroAny[i, k]) + (counts[i] + counts[k]) /adjacencyOneAny[i, k]);
-                    //(adjacencyZeroAny[i, k]) + adjacencyOneAny[i, k];
+                    (counts[i] + counts[k]) /
+                    (adjacencyZeroAny[i, k]); // + (counts[i] + counts[k]) /adjacencyOneAny[i, k]);
+                //(adjacencyZeroAny[i, k]) + adjacencyOneAny[i, k];
                 adjacencyMetric[k, i] = adjacencyMetric[i, k];
             }
         }
@@ -71,6 +78,5 @@ public class Charred2DArray<T> where T : unmanaged
         _data = data;
     }
 
-    public T this[char c1, char c2] => _data.GetValue<T>(new []{_keyData.IdxOf(c1), _keyData.IdxOf(c2)});
-
+    public T this[char c1, char c2] => _data.GetValue<T>(new[] { _keyData.IdxOf(c1), _keyData.IdxOf(c2) });
 }

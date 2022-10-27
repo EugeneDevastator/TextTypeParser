@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -66,11 +67,14 @@ public class Analyzer
             //"017895",
             //"09ABA5",
             //"5A7895",
-            
-            "017885",
-            "08ABA5",
-            "5A7885",
+
+            "016785",
+            "05ABA5",
+            "4A6785",
         };
+
+        int additionalKeys = 1;
+
         for (var i = 0; i < priorityTemplate.Length; i++)
         {
             priorityTemplate[i] = (priorityTemplate[i] + "_" + new String(priorityTemplate[i].Reverse().ToArray()))
@@ -112,11 +116,11 @@ public class Analyzer
         };
         string[] fitMeterTemplatepinky = new string[]
         {
-            "MLLLM",
-            "MLLLM",
-            "ML*LM",
-            "MLLLM",
-            "MLLLM",
+            "**L**",
+            "*LLL*",
+            "*L*L*",
+            "*LLL*",
+            "**L**",
         };
 
         string[] locationNames = new string[]
@@ -126,7 +130,7 @@ public class Analyzer
             //"_23881_18832_",
 
             "ppuuup",
-            "ppmmmp",
+            "pummmp",
             "pmuuup",
         };
         for (var i = 0; i < locationNames.Length; i++)
@@ -238,7 +242,6 @@ public class Analyzer
                 case MinBefore:
                     return -1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
 
-
                 default:
                     return 0;
             }
@@ -264,12 +267,16 @@ public class Analyzer
                         var neigh = chars[i + x, k + y];
                         if (mode != NONE)
                         {
-                            score += MeterAdjacencyFitScore(candidate, neigh, mode);
+                            score += MeterAdjacencyFitScore(
+                                candidate, 
+                                neigh, 
+                                mode);
                             cellcount++;
                         }
                     }
                 }
             }
+
             //Console.Write(candidate.ToString() + score / cellcount + " " + neighbors.ToString() + "|");
             return score / cellcount;
         }
@@ -323,45 +330,55 @@ public class Analyzer
             while (!String.IsNullOrEmpty(unparsedYet))
             {
                 //GetBatch;
-                var batch = GetCandidatePositions();
-                if (batch.Count < 1)
+                var places = GetCandidatePositions();
+                if (places.Count < 1)
                     break;
 
                 //get batch symbols
-                var orderedChars = unparsedYet.ToCharArray().OrderByDescending(c => counts.GetInt64(typIndices[c]));
-                var arr = new string(orderedChars.ToArray()).ToCharArray();
-                int trytoadd = 0;
-                int toAdd = Math.Min(arr.Length, trytoadd + batch.Count);
+                var orderedChars = unparsedYet.OrderByDescending(c => counts.GetInt64(typIndices[c])).Where(c=>unparsedYet.Contains(c));
+                var arr = new string(orderedChars.ToArray());
+                int trytoadd = additionalKeys;
+                int toAdd = Math.Min(arr.Length, trytoadd + places.Count);
                 var batchChars = arr[..toAdd];
 
-                float maxRate = int.MinValue;
-
                 //var idx = a.Select((c, i) => i).ToArray();
-                var permutations = new Permutations<char>(batchChars,GenerateOption.WithoutRepetition);
+                var permutations = new Permutations<char>(batchChars, GenerateOption.WithoutRepetition);
+
                 IReadOnlyList<char> bestPerm = null;
-               // Console.WriteLine("Perms for batch:" + permutations.Count);
+                float maxRage = float.MinValue;
+                object locker = new object();
+                // Console.WriteLine("Perms for batch:" + permutations.Count);
                 float maxWeight = int.MinValue;
-                foreach (var permutation in permutations)
+                Parallel.ForEach(permutations, permutation =>
                 {
+                    var fitChars = chars.Clone() as char[,];
+
+                    var placedChars = places.Zip(permutation.ToArray()[..places.Count]);
                     //we need to fit all characters before any calculations....
-                    foreach (var (coord, bchar) in batch.Zip(permutation))
-                        chars[coord.x, coord.y] = bchar;
+                    foreach (var (coord, bchar) in placedChars)
+                        fitChars[coord.x, coord.y] = bchar;
 
                     float permweight = 0;
-                    foreach (var (coord, bchar) in batch.Zip(permutation))
+                    
+                    foreach (var (coord, bchar) in placedChars)
                     {
                         permweight += GetPlacementScoreForKey(coord.x, coord.y, bchar);
                     }
 
-                    if (permweight > maxWeight)
+                    lock (locker)
                     {
-                        bestPerm = permutation;
-                        maxWeight = permweight;
+                        if (permweight > maxWeight)
+                        {
+                            bestPerm = permutation;
+                            maxWeight = permweight;
+                        }
                     }
-                }
+                });
 
+                if (bestPerm == null)
+                    break;
                 // update it.
-                foreach (var (coord, bchar) in batch.Zip(bestPerm))
+                foreach (var (coord, bchar) in places.Zip(bestPerm))
                 {
                     chars[coord.x, coord.y] = bchar;
                     lCounts[coord.x, coord.y] = counts[typIndices[bchar]];

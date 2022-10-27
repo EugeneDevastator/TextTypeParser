@@ -9,9 +9,9 @@ public static class Constants
     public const string CountsDatafile = "counts.npy";
     public const string KeySetData = "keyset.txt";
     
-    public const string adjDirectName = "dirAdjacency.csv";
+    public const string adjZeroName = "AdjZero.csv";
     public const string sortedDirectAdjName = "dirAdjacencySort.csv";
     public const string sortedBiDirAdjName = "BidirAdjacencySort.csv";
-    public const string adjRawName = "absAdjacency.csv";
+    public const string adjZeroAnyName = "absAdjacencyZero.csv";
     public const string countsName = "rawCounts.csv";
 }

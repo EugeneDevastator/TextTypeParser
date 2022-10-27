@@ -68,12 +68,12 @@ public class Analyzer
             //"09ABA5",
             //"5A7895",
 
-            "018886",
-            "08ABA6",
-            "6A8886",
+            "017887",
+            "06ABA7",
+            "6A7887",
         };
 
-        int additionalKeys = 1;
+        int additionalKeys = 0;
 
         for (var i = 0; i < priorityTemplate.Length; i++)
         {
@@ -108,11 +108,11 @@ public class Analyzer
         };
         string[] fitMeterTemplateUp = new string[]
         {
-            "**D**",
-            "**L**",
-            "*****",
-            "**L**",
-            "**D**",
+            "LDL",
+            "*L*",
+            "***",
+            "*L*",
+            "LDL",
         };
         string[] fitMeterTemplatepinky = new string[]
         {
@@ -150,12 +150,6 @@ public class Analyzer
         patternAtLocation.Add('u', fitMeterTemplateUp);
         patternAtLocation.Add('l', fitMeterTemplateLow);
         patternAtLocation.Add('r', fitMeterTemplateRidx);
-
-
-        int yrange = (fitMeterTemplateMain.Length - 1) / 2;
-        int xrange = (fitMeterTemplateMain[0].Length - 1) / 2;
-        (int x, int y) center = (x: xrange, y: yrange);
-
 
         var w = baseline[0].Length;
         var h = baseline.Length;
@@ -198,23 +192,23 @@ public class Analyzer
             x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] == NONE;
 
 
-        int CellWeight(int x, int y)
-        {
-            int weight = 0;
-            for (int i = -xrange; i <= xrange; i++)
-            {
-                for (int k = -yrange; k <= yrange; k++)
-                {
-                    if (IsValid(x + i, y + k))
-                    {
-                        weight += lCounts[x + i, y + k];
-                    }
-                }
-            }
+       //int CellWeight(int x, int y)
+       //{
+       //    int weight = 0;
+       //    for (int i = -xrange; i <= xrange; i++)
+       //    {
+       //        for (int k = -yrange; k <= yrange; k++)
+       //        {
+       //            if (IsValid(x + i, y + k))
+       //            {
+       //                weight += lCounts[x + i, y + k];
+       //            }
+       //        }
+       //    }
 
-            weight += priority[x, y] * 100000000;
-            return weight;
-        }
+       //    weight += priority[x, y] * 100000000;
+       //    return weight;
+       //}
 
         const char IGNOR = '*';
         const char MAXIMIZE = 'M';
@@ -265,7 +259,10 @@ public class Analyzer
             StringBuilder neighbors = new StringBuilder();
             var locationName = locationNames[y][x];
             var pattern = patternAtLocation[locationName];
-
+            var xrange = (pattern[0].Length-1)/2;
+            var yrange = (pattern.Length-1)/2;
+            (int x, int y) center = (x: xrange, y: yrange);
+            
             for (int i = -xrange; i <= xrange; i++)
             {
                 for (int k = -yrange; k <= yrange; k++)
@@ -291,23 +288,23 @@ public class Analyzer
         }
 
 
-        string GetNearChars(int x, int y)
-        {
-            StringBuilder res = new StringBuilder();
-            for (int i = -xrange; i <= xrange; i++)
-            {
-                for (int k = -yrange; k <= yrange; k++)
-                {
-                    //k!=0 will take horizonatals out of calculations.
-                    if (IsValidChar(x + i, y + k) && k != 0)
-                    {
-                        res.Append(chars[x + i, y + k]);
-                    }
-                }
-            }
-
-            return res.ToString();
-        }
+        //string GetNearChars(int x, int y)
+        //{
+        //    StringBuilder res = new StringBuilder();
+        //    for (int i = -xrange; i <= xrange; i++)
+        //    {
+        //        for (int k = -yrange; k <= yrange; k++)
+        //        {
+        //            //k!=0 will take horizonatals out of calculations.
+        //            if (IsValidChar(x + i, y + k) && k != 0)
+        //            {
+        //                res.Append(chars[x + i, y + k]);
+        //            }
+        //        }
+        //    }
+//
+        //    return res.ToString();
+        //}
 
         // new algo:
         // 1. pick most used key
@@ -352,16 +349,25 @@ public class Analyzer
 
                 //var idx = a.Select((c, i) => i).ToArray();
                 var permutations = new Permutations<char>(batchChars, GenerateOption.WithoutRepetition);
-
+                var permCount = (float)permutations.Count;
+                int countdiv = (int)permutations.Count/10;
+                countdiv = Math.Max(countdiv, 1);
+                permCount = MathF.Max(permCount, 1);
+                Console.WriteLine("Est. perms:" + permCount);
+                
                 IReadOnlyList<char> bestPerm = null;
                 float maxRage = float.MinValue;
                 object locker = new object();
                 // Console.WriteLine("Perms for batch:" + permutations.Count);
                 float maxWeight = int.MinValue;
+                int i = 0;
                 Parallel.ForEach(permutations, permutation =>
                 {
                     var fitChars = chars.Clone() as char[,];
-
+                    i++;
+                    if (i % countdiv == 0)
+                        Console.WriteLine(i/permCount + " _ "+DateTime.Now.ToString("hh:mm:ss"));
+                        
                     var placedChars = places.Zip(permutation.ToArray()[..places.Count]);
                     //we need to fit all characters before any calculations....
                     foreach (var (coord, bchar) in placedChars)
@@ -438,7 +444,7 @@ public class Analyzer
                 unparsedYet = unparsedYet.Replace(bestChar.ToString(), String.Empty);
             }
         }
-
+/*
         void GenerateLayoutByEmptyWeightFirst()
         {
             while (!String.IsNullOrEmpty(unparsedYet))
@@ -473,7 +479,7 @@ public class Analyzer
                 lCounts[nextx, nexty] = counts[typIndices[mostFit]];
             }
         }
-
+*/
         void PrintForTable()
         {
             for (int k = 0; k < h; k++)

@@ -68,9 +68,9 @@ public class Analyzer
             //"09ABA5",
             //"5A7895",
 
-            "016785",
-            "05ABA5",
-            "4A6785",
+            "018886",
+            "08ABA6",
+            "6A8886",
         };
 
         int additionalKeys = 1;
@@ -122,6 +122,14 @@ public class Analyzer
             "*LLL*",
             "**L**",
         };
+        string[] fitMeterTemplateRidx = new string[]
+        {
+            "LLLLL",
+            "*LLL*",
+            "*L*L*",
+            "*LLL*",
+            "LLLLL",
+        };
 
         string[] locationNames = new string[]
         {
@@ -129,9 +137,9 @@ public class Analyzer
             //"1AABA7_7ABAA1",
             //"_23881_18832_",
 
-            "ppuuup",
-            "pummmp",
-            "pmuuup",
+            "ppuuur",
+            "pummmr",
+            "pmuuur",
         };
         for (var i = 0; i < locationNames.Length; i++)
             locationNames[i] = (locationNames[i] + "_" + new String(locationNames[i].Reverse().ToArray())).ToString();
@@ -141,6 +149,7 @@ public class Analyzer
         patternAtLocation.Add('m', fitMeterTemplateMain);
         patternAtLocation.Add('u', fitMeterTemplateUp);
         patternAtLocation.Add('l', fitMeterTemplateLow);
+        patternAtLocation.Add('r', fitMeterTemplateRidx);
 
 
         int yrange = (fitMeterTemplateMain.Length - 1) / 2;

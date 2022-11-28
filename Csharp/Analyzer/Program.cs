@@ -1,13 +1,16 @@
 ﻿using System;
+using System.Net.Security;
 using CharData;
 using Combinatorics.Collections;
 using MainApp;
+using Microsoft.Win32.SafeHandles;
 using NumSharp;
 
 
 var analyzer = new Analyzer();
 analyzer.GenerateLayout();
-
+//TODO try to split layout into two sets of keys that are farther away from each other,
+//then do same  spreads inside each subset.
 //test perms.
 var a = "abc".ToCharArray();
 var idx = a.Select((c, i) => i).ToArray();

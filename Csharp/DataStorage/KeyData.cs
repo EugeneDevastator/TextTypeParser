@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace CharData;
-
 public class KeyData
 {
     public string typable; // = "abcdefghijklmnopqrstuvwxyz .,;"; //stored data.

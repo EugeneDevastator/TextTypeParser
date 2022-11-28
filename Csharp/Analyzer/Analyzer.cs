@@ -1,13 +1,6 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security.Principal;
-using System.Text;
+﻿using System.Text;
 using CharData;
 using Combinatorics.Collections;
-using MainApp;
 using NumSharp;
 
 public class Analyzer
@@ -52,25 +45,17 @@ public class Analyzer
             //"_*hc*w_*lu**_",
             //"*arstf_*neio*",
             //"_***p*_*****_",
-            "_*****_*****_",
-            "_*rst*_*nei*_",
-            "*a****_****o*",
+            "_;***___*.,*_",
+            "_urst*_*nei=_",
+            "*a****_***yo*",
         };
 
 
         string[] priorityTemplate = new string[]
         {
-            //"107886_688701",
-            //"1AABA7_7ABAA1",
-            //"_23881_18832_",
-// per-col good
-            //"017895",
-            //"09ABA5",
-            //"5A7895",
-
-            "017887",
-            "06ABA7",
-            "6A7887",
+            "016661",
+            "08ABA7",
+            "1A8887",
         };
 
         int additionalKeys = 0;
@@ -108,39 +93,43 @@ public class Analyzer
         };
         string[] fitMeterTemplateUp = new string[]
         {
-            "LDL",
-            "*L*",
-            "***",
-            "*L*",
-            "LDL",
+            "*",
+            "D",
+            "*",
+            "D",
+            "*",
         };
         string[] fitMeterTemplatepinky = new string[]
         {
-            "**L**",
+            "*DDD*",
             "*LLL*",
             "*L*L*",
             "*LLL*",
-            "**L**",
+            "*DDD*",
         };
         string[] fitMeterTemplateRidx = new string[]
         {
-            "LLLLL",
-            "*LLL*",
-            "*L*L*",
-            "*LLL*",
-            "LLLLL",
+            "DDD",
+            "LLL",
+            "***",
+            "LLL",
+            "DDD",
         };
 
         string[] locationNames = new string[]
         {
-            //"107886_688701",
-            //"1AABA7_7ABAA1",
-            //"_23881_18832_",
-
-            "ppuuur",
-            "pummmr",
-            "pmuuur",
+            "ppuurp",
+            "pummmp",
+            "pmuurp",
         };
+        
+        string[] fingerGroups = new string[]
+        {
+            "CCCBAA",
+            "DDCBAA",
+            "DDCBAA",
+        };
+        
         for (var i = 0; i < locationNames.Length; i++)
             locationNames[i] = (locationNames[i] + "_" + new String(locationNames[i].Reverse().ToArray())).ToString();
 
@@ -345,8 +334,15 @@ public class Analyzer
                 var arr = new string(orderedChars.ToArray());
                 int trytoadd = additionalKeys;
                 int toAdd = Math.Min(arr.Length, trytoadd + places.Count);
+                    
                 var batchChars = arr[..toAdd];
-
+                if (toAdd < places.Count)
+                {
+                    for (int k = 0; k < places.Count-toAdd; k++)
+                    {
+                        batchChars+=('_');
+                    }
+                }
                 //var idx = a.Select((c, i) => i).ToArray();
                 var permutations = new Permutations<char>(batchChars, GenerateOption.WithoutRepetition);
                 var permCount = (float)permutations.Count;
@@ -367,21 +363,25 @@ public class Analyzer
                     i++;
                     if (i % countdiv == 0)
                         Console.WriteLine(i/permCount + " _ "+DateTime.Now.ToString("hh:mm:ss"));
-                        
+                    
                     var placedChars = places.Zip(permutation.ToArray()[..places.Count]);
                     //we need to fit all characters before any calculations....
                     foreach (var (coord, bchar) in placedChars)
                         fitChars[coord.x, coord.y] = bchar;
 
                     float permweight = 0;
-                    
+                    float maxCharwieght = float.MinValue;
                     foreach (var (coord, bchar) in placedChars)
                     {
-                        permweight += GetPlacementScoreForKey(coord.x, coord.y, bchar);
+                        var w = GetPlacementScoreForKey(coord.x, coord.y, bchar);
+                        permweight += w;
+                        if (w > maxCharwieght)
+                            maxCharwieght = w;
                     }
 
                     lock (locker)
                     {
+                        //todo check max symbol weight per perm.
                         if (permweight > maxWeight)
                         {
                             bestPerm = permutation;

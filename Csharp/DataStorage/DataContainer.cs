@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Runtime.CompilerServices;
 using CharData;
 using MainApp;
 using NumSharp;
@@ -43,6 +44,8 @@ public class DataContainer
         GenerateMetricAdj();
     }
 
+    private int IdxOf(char k) => _keys.IndexOf(k);
+    public float GetAdjMetric(char a, char b) => adjacencyMetric[IdxOf(a), IdxOf(b)];
     private void GenerateMetricAdj()
     {
         for (int k = 0; k < adjacencyOne.shape[1]; k++)
@@ -65,6 +68,8 @@ public class DataContainer
         }
     }
 }
+
+
 
 public class Charred2DArray<T> where T : unmanaged
 {

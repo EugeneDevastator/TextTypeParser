@@ -3,17 +3,10 @@
 using AnalyzerNext;
 
 Console.WriteLine("Hello, World!");
-var data = new NumpyDataContainer();
 var layout = new LayoutData();
-var sampler = new Sampler(data, layout);
-var ex = new CSVExporter();
-var arr = new int[2, 5]
-{
-    {1,2,3,4,5},{2,2,2,2,2}
-};
-ex.WriteData(arr,"d:\\arr.txt");
-var read = ex.ReadData<int>("d:\\arr.txt");
-
-
+var data = new PocoDatacontainer();
+data.LoadFromFolder("D:\\1\\intelli\\");
+//var sampler = new Sampler(data, layout);
+//var sm = new SymbolMap();
 
 int a =1;

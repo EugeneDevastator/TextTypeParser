@@ -2,13 +2,13 @@
 
 public class Sampler
 {
-    private NumpyDataContainer _numpyData;
+    private IDataContainer _data;
     private LayoutData _layout;
 
-    public Sampler(NumpyDataContainer numpyData, LayoutData layout)
+    public Sampler(IDataContainer data, LayoutData layout)
     {
         _layout = layout;
-        _numpyData = numpyData;
+        _data = data;
     }
 
     public IEnumerable<List<(byte x, byte y)>> PriorityPositions()
@@ -33,7 +33,7 @@ public class Sampler
 
     public float GetWeightOfPlacedKey(byte x, byte y, char key, ref char[,] filledLayout)
     {
-        return _numpyData.GetAdjMetric(filledLayout[x, y], key);
+        return _data.GetAdjMetric(filledLayout[x, y], key);
     }
 
     public float GetWeight(byte x, byte y, byte x1, byte y1, byte dist, ref char[,] filledLayout) =>
@@ -41,7 +41,7 @@ public class Sampler
 
     public float GetWeight((byte x, byte y) pos1, (byte x, byte y) pos2, byte dist, ref char[,] filledLayout)
     {
-        return _numpyData.GetAdjMetric(filledLayout[pos1.x, pos1.y], filledLayout[pos2.x, pos2.y]);
+        return _data.GetAdjMetric(filledLayout[pos1.x, pos1.y], filledLayout[pos2.x, pos2.y]);
     }
 
     private List<(byte x, byte y, byte dist)> GetCompetingPositions(byte x, byte y)

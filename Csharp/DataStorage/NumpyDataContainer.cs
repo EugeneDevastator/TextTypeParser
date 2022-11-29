@@ -46,6 +46,26 @@ public class NumpyDataContainer : IDataContainer
 
     private int IdxOf(char k) => _keys.IndexOf(k);
     public float GetAdjMetric(char a, char b) => adjacencyMetric[IdxOf(a), IdxOf(b)];
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SetSymbols(string symbols)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void SaveToFolder(string folder)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void LoadFromFolder(string folder)
+    {
+        throw new NotImplementedException();
+    }
+
     private void GenerateMetricAdj()
     {
         for (int k = 0; k < adjacencyOne.shape[1]; k++)

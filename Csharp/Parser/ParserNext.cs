@@ -12,30 +12,32 @@ public class ParserNext
     /// weight calculation bust be normalized per set? w=/wtotal.
     //private string[] typableNames => _keyData.typableNames;
 
-    private int[,] adjFloatZero;
-    private int[,] adjFloatOne;
-    private long[] typableCounts;
+    private int[,] adjZero;
+    private int[,] adjOne;
+    private int[] keyCounts;
 
-    private string typable;
+    private string keys;
     private SymbolMap _symbolMap;
     private WordSplitter _worder;
+    private IDataContainer _data;
 
     public ParserNext(IDataContainer data)
     {
+        _data = data;
         _symbolMap = new SymbolMap();
-        typable = _symbolMap.KeyboardKeys;
+        keys = _symbolMap.KeyboardKeys;
         _worder = new WordSplitter(_symbolMap);
         Console.WriteLine(_symbolMap.KeyboardKeys.ToString());
 
         //_keyData = new KeyData(_symbolMap.UniqueKeys);
 
-        typableCounts = new long[typable.Length];
-        adjFloatZero = new int[typable.Length, typable.Length];
-        adjFloatOne = new int[typable.Length, typable.Length];
+        keyCounts = new int[keys.Length];
+        adjZero = new int[keys.Length, keys.Length];
+        adjOne = new int[keys.Length, keys.Length];
 
-        for (int i = 0; i < typable.Length; i++)
+        for (int i = 0; i < keys.Length; i++)
         {
-            typableCounts[i] = 0;
+            keyCounts[i] = 0;
         }
     }
 
@@ -57,20 +59,21 @@ public class ParserNext
     private void WriteDataFiles()
     {
         //TODO delegate to datasource
-        
-      //  for (int i = 0; i < typable.Length; i++)
-      //  {
-      //      for (int k = 0; k < typable.Length; k++)
-      //      {
-      //          adjacencyZero[i, k] = adjFloatZero[i, k];
-      //          adjacencyOne[i, k] = adjFloatOne[i, k];
-      //      }
-      //  }
+        _data.Fill(keyCounts,adjZero,adjOne);
+        _data.SaveToFolder("D:\\1\\intelli\\");
+        //  for (int i = 0; i < typable.Length; i++)
+        //  {
+        //      for (int k = 0; k < typable.Length; k++)
+        //      {
+        //          adjacencyZero[i, k] = adjFloatZero[i, k];
+        //          adjacencyOne[i, k] = adjFloatOne[i, k];
+        //      }
+        //  }
 //
-      //  np.save(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile), adjacencyZero);
-      //  np.save(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile), adjacencyOne);
-      //  np.save(Path.Combine(Constants.rootPath, Constants.CountsDatafile), np.asarray(typableCounts));
-      //  File.WriteAllText(Path.Combine(Constants.rootPath, Constants.KeySetData), typable);
+        //  np.save(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile), adjacencyZero);
+        //  np.save(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile), adjacencyOne);
+        //  np.save(Path.Combine(Constants.rootPath, Constants.CountsDatafile), np.asarray(typableCounts));
+        //  File.WriteAllText(Path.Combine(Constants.rootPath, Constants.KeySetData), typable);
     }
 
     private void ExtractDataAllCharsFirstNOfWord(string content, int firstn)
@@ -161,13 +164,13 @@ public class ParserNext
                         //cba
                         if (kc != '\0')
                         {
-                            adjFloatOne[ic, ia] += 1;
+                            adjOne[ic, ia] += 1;
                             Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
                         }
 
                         if (kb != '\0')
                         {
-                            adjFloatZero[ib, ia] += 1;
+                            adjZero[ib, ia] += 1;
                             Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
                         }
 
@@ -288,13 +291,13 @@ public class ParserNext
                     //c=F, b=i, a=r
                     if (kc != '\0')
                     {
-                        adjFloatOne[ic, ia] += 1;
+                        adjOne[ic, ia] += 1;
                         Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
                     }
 
                     if (kb != '\0')
                     {
-                        adjFloatZero[ib, ia] += 1;
+                        adjZero[ib, ia] += 1;
                         Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
                     }
                     if (_symbolMap.WordSeparators.Contains(cr))
@@ -309,29 +312,29 @@ public class ParserNext
     private void AddAdjacencyOne(char first, char next)
     {
         //so turns out numpy sucks at setting values..
-        adjFloatOne[IndexOfVis(first), IndexOfVis(next)] += 1;
+        adjOne[IndexOfVis(first), IndexOfVis(next)] += 1;
     }
     
     private void AddAdjacencyZero(char first, char next)
     {
         //so turns out numpy sucks at setting values..
-        adjFloatZero[IndexOfVis(first), IndexOfVis(next)] += 1;
+        adjZero[IndexOfVis(first), IndexOfVis(next)] += 1;
     }
     
     private void AddAdjacencyData(byte ione, byte itwo, byte itri)
     {
         //so turns out numpy sucks at setting values..
-        adjFloatOne[ione, itri] += 1;
-        adjFloatZero[itwo, itri] += 1;
+        adjOne[ione, itri] += 1;
+        adjZero[itwo, itri] += 1;
     }
 
     private void AddCountData(char c)
     {
-        typableCounts[IndexOfVis(c)] += 1;
+        keyCounts[IndexOfVis(c)] += 1;
     }
     
     private void AddCountData(byte idx)
     {
-        typableCounts[idx] += 1;
+        keyCounts[idx] += 1;
     }
 }

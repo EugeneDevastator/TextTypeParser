@@ -4,7 +4,7 @@ using CharData;
 using MainApp;
 using NumSharp;
 
-public class DataContainer
+public class NumpyDataContainer : IDataContainer 
 {
     public NDArray adjacencyZero;
     public NDArray adjacencyOne;
@@ -17,7 +17,7 @@ public class DataContainer
     public string _keys;
 
 
-    public DataContainer()
+    public NumpyDataContainer()
     {
         adjacencyZero = np.load(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile));
         adjacencyOne = np.load(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile));

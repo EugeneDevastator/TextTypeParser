@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
+[Obsolete("Use symbol map now")]
 public class KeyData
 {
     public string typable; // = "abcdefghijklmnopqrstuvwxyz .,;"; //stored data.
@@ -13,12 +14,13 @@ public class KeyData
         { ',', "coma" },
         { ';', "semi" },
         { '\'', "quot" },
-        { '\\', "slsh" },
+        { '\\', "slh" },
         { '-', "minus" },
         { '[', "lbr" },
         { ']', "rbr" },
         { '*', "str" },
         { '=', "eq" },
+        { '/', "bslh" },
     };
 
     public string[] typableNames;

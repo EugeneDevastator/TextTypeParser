@@ -7,15 +7,15 @@ public class Analyzer
 {
     private IReadOnlyDictionary<char, byte> typIndices => _keyData.TypIndices; //= new Dictionary<char, byte>();
     private KeyData _keyData;
-    private NDArray adjacencyMetric => _data.adjacencyMetric;
-    private NDArray counts => _data.counts;
+    private NDArray adjacencyMetric => _numpyData.adjacencyMetric;
+    private NDArray counts => _numpyData.counts;
 
-    private DataContainer _data;
+    private NumpyDataContainer _numpyData;
 
     public Analyzer()
     {
-        _data = new DataContainer();
-        _keyData = new KeyData(_data._keys);
+        _numpyData = new NumpyDataContainer();
+        _keyData = new KeyData(_numpyData._keys);
 
         //  for (int i = 0; i < _keyData.typable.Length; i++)
         //  {
@@ -218,21 +218,21 @@ public class Analyzer
                 case IGNOR:
                     return 0;
                 case MAXIMIZE:
-                    return _data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                    return _numpyData.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
                 case MINIMIZE:
-                    return -1 * _data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                    return -1 * _numpyData.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
                 case MINIMIZEx2:
-                    return -2 * _data.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                    return -2 * _numpyData.adjacencyMetric.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
 
                 case MaxAfter: // marked after candidate
-                    return 1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor), _keyData.IdxOf(candidate));
+                    return 1 * _numpyData.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor), _keyData.IdxOf(candidate));
                 case MinAfter:
-                    return -1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor), _keyData.IdxOf(candidate));
+                    return -1 * _numpyData.adjacencyZero.GetSingle(_keyData.IdxOf(neighbor), _keyData.IdxOf(candidate));
 
                 case MaxBefore: // marked before candidate
-                    return 1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                    return 1 * _numpyData.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
                 case MinBefore:
-                    return -1 * _data.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
+                    return -1 * _numpyData.adjacencyZero.GetSingle(_keyData.IdxOf(candidate), _keyData.IdxOf(neighbor));
 
                 default:
                     return 0;

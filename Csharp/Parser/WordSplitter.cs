@@ -16,7 +16,7 @@ public class WordSplitter
         StringBuilder wordBuilder = new StringBuilder();
         foreach (var cr in content)
         {
-            if (!_symbols.Letters.Contains(cr))
+            if (!_symbols.LettersVisual.Contains(cr))
             {
                 if (addSeparators && !Ignore.Contains(cr))
                     wordBuilder.Append(cr);
@@ -81,8 +81,8 @@ public class WordSplitter
         char lastChar = '\0';
         foreach (var cr in word)
         {
-            bool isSep = (_symbols.LowerLetters.Contains(lastChar) && _symbols.UpperLetters.Contains(cr))
-                         || !_symbols.Letters.Contains(cr);
+            bool isSep = (_symbols.LettersLower.Contains(lastChar) && _symbols.LettersUpper.Contains(cr))
+                         || !_symbols.LettersVisual.Contains(cr);
 
             if (skipToSep && !isSep)
             {
@@ -100,7 +100,7 @@ public class WordSplitter
                 wordBuilder.Clear();
                 charN = 0;
 
-                if (_symbols.UpperLetters.Contains(cr))
+                if (_symbols.LettersUpper.Contains(cr))
                 {
                     wordBuilder.Append(cr);
                     skipToSep = false;

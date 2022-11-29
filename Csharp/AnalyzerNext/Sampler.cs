@@ -1,4 +1,7 @@
-﻿namespace AnalyzerNext;
+﻿using System.ComponentModel;
+using Combinatorics.Collections;
+
+namespace AnalyzerNext;
 
 public class Sampler
 {
@@ -11,6 +14,25 @@ public class Sampler
         _data = data;
     }
 
+    public IEnumerable<List<(byte x, byte y)>> FingerSetPositions()
+    {
+        var keysDesc = _layout.FingerChars;
+        foreach (var groupKey in keysDesc)
+        {
+            var res = new List<(byte x, byte y)>();
+            for (byte i = 0; i < _layout.XDim; i++)
+            {
+                for (byte k = 0; k < _layout.YDim; k++)
+                {
+                    if (_layout.FingerGroups[i, k] != LayoutData.SKIP && _layout.FingerGroups[i, k] == groupKey)
+                        res.Add((i, k));
+                }
+            }
+            if (res.Count > 0)
+                yield return res;
+        }
+    }
+    
     public IEnumerable<List<(byte x, byte y)>> PriorityPositions()
     {
         var keysDesc = _layout.PriorityKeysAscending.Reverse();
@@ -89,4 +111,35 @@ public class Sampler
 
         return result;
     }
+
+    void GetLayoutScore(ref char[,] filledLayout)
+    {
+        // for each finger-set
+        // get finger set score
+        // for each unique pair
+        // sum up score
+        
+        var lists = FingerSetPositions();
+        float score = 0;
+        foreach (var posSet in lists)
+        {
+            var ids = posSet.Select((p, i) => i).ToList();
+            var pairs = new Combinations<int>(ids, 2);
+            foreach (var pair in pairs)
+            {
+                var pos1 = posSet[pair[0]];
+                var pos2 = posSet[pair[1]];
+                score += GetPairScore(pos1.x, pos1.y, pos2.x, pos2.y, ref filledLayout);
+            }
+        }
+    }
+
+    public float GetPairScore(byte x1, byte y1, byte x2, byte y2, ref char[,] layout)
+    {
+        byte dist = (byte)Math.Max(Math.Abs(x1 - x2), Math.Abs(y1 - y2));
+        GetWeight(x1, y1, x2,y2, dist, ref layout);
+        return 0;
+    }
+    
+    //we in fact must sample each unique pair in each finger set.
 }

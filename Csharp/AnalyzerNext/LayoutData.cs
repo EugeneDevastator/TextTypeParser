@@ -6,26 +6,25 @@ public class LayoutData
 {
     public const char SKIP = '_';
     public const char NONE = '*';
-
+    
+    public string SkippedKeys = " \\-90[]=/";
+    
     private string[] _fixedKeys = new string[]
     {
         "_;***___*.,*_",
         "_urst*_*nei=_",
         "*a****_***yo*",
     };
-
-    public int XDim => FixedKeys.GetLength(0);
-    public int YDim => FixedKeys.GetLength(1);
     
     public string PriorityKeysAscending = "0123456789ABCDEF";
-
     private string[] _halfPriority = new string[]
     {
-        "016661",
-        "08ABA7",
-        "1A8887",
+        "017771",
+        "18ABA8",
+        "6A8887",
     };
-    
+
+    public string FingerChars = "ABCDabcd";
     private string[] _fingerGroups = new string[]
     {
         "CCCBAA",
@@ -37,6 +36,8 @@ public class LayoutData
     public char[,] Priorities;
     public char[,] FixedKeys;
     
+    public int XDim => FixedKeys.GetLength(0);
+    public int YDim => FixedKeys.GetLength(1);
     
     public LayoutData()
     {

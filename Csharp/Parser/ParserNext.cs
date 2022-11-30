@@ -52,7 +52,7 @@ public class ParserNext
         //GetCrumbs(text,99);
         //ExtractCrumbData(text,3);
         ExtractDataAllChars(text);
-        //ExtractDataAllCharsFirstNOfWord(text, 4);
+        ExtractDataAllCharsFirstNOfWord(text, 4);
         WriteDataFiles();
     }
 
@@ -165,13 +165,13 @@ public class ParserNext
                         if (kc != '\0')
                         {
                             adjOne[ic, ia] += 1;
-                            Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
+                           // Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
                         }
 
                         if (kb != '\0')
                         {
                             adjZero[ib, ia] += 1;
-                            Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
+                            //Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
                         }
 
                         AddCountData(ia);

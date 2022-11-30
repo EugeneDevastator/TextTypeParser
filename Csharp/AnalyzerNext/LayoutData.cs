@@ -7,7 +7,7 @@ public class LayoutData
     public const char SKIP = '_';
     public const char NONE = '*';
     
-    public string SkippedKeys = " \\-90[]/'=";
+    public string SkippedKeys = " \\-90[]/'=;.,";
     public int AddToSample = 0;
     
     private string[] _fixedKeys = new string[]
@@ -15,17 +15,17 @@ public class LayoutData
         //"_*****_*****_",
         //"_*rst*_*nei*_",
         //"*a****_****o*",
-        "******_******",
-        "******_**ie**",
-        "******_******",
+        "*z****_****j*",
+        "**ts**_**ie**",
+        "*alc**_****o*",
     };
     
     public string PriorityKeysAscending = "0123456789ABCDEF";
     private string[] _halfPriority = new string[]
     {
-        "234865",
-        "69FDC8",
-        "4D9997"
+        "238833",
+        "39FDC9",
+        "8D9998",
     };
 
     public string FingerChars = "ABCDabcd";

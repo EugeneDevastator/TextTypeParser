@@ -50,8 +50,8 @@ public class ParserNext
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
         //GetCrumbs(text,99);
-        ExtractCrumbData(text,3);
-        //ExtractDataAllChars(text);
+        //ExtractCrumbData(text,3);
+        ExtractDataAllChars(text);
         //ExtractDataAllCharsFirstNOfWord(text, 4);
         WriteDataFiles();
     }
@@ -59,7 +59,7 @@ public class ParserNext
     private void WriteDataFiles()
     {
         //TODO delegate to datasource
-        _data.Fill(keyCounts,adjZero,adjOne);
+        _data.Fill(keyCounts,adjZero,adjOne,_symbolMap.KeyboardKeys);
         _data.SaveToFolder("D:\\1\\intelli\\");
         //  for (int i = 0; i < typable.Length; i++)
         //  {
@@ -292,13 +292,13 @@ public class ParserNext
                     if (kc != '\0')
                     {
                         adjOne[ic, ia] += 1;
-                        Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
+                        //Console.Write("1:" + kc.ToString()+ka.ToString()+" ");
                     }
 
                     if (kb != '\0')
                     {
                         adjZero[ib, ia] += 1;
-                        Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
+                        //Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
                     }
                     if (_symbolMap.WordSeparators.Contains(cr))
                     {

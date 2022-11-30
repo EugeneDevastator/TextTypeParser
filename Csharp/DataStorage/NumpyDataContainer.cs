@@ -51,7 +51,7 @@ public class NumpyDataContainer : IDataContainer
         throw new NotImplementedException();
     }
 
-    public void SetSymbols(string symbols)
+    public void SetKeys(string keys)
     {
         throw new NotImplementedException();
     }
@@ -62,6 +62,13 @@ public class NumpyDataContainer : IDataContainer
     }
 
     public void LoadFromFolder(string folder)
+    {
+        throw new NotImplementedException();
+    }
+
+    public string Keys { get; }
+    public int[] KeyCounts { get; }
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys)
     {
         throw new NotImplementedException();
     }

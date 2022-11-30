@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Text;
 using Combinatorics.Collections;
 
 namespace AnalyzerNext;
@@ -14,7 +15,7 @@ public class Sampler
         _data = data;
     }
 
-    public IEnumerable<List<(byte x, byte y)>> FingerSetPositions()
+    public IEnumerable<List<(byte x, byte y)>> FingerSetPositionsForPlacedKeys(char[,] filledLayout)
     {
         var keysDesc = _layout.FingerChars;
         foreach (var groupKey in keysDesc)
@@ -24,7 +25,9 @@ public class Sampler
             {
                 for (byte k = 0; k < _layout.YDim; k++)
                 {
-                    if (_layout.FingerGroups[i, k] != LayoutData.SKIP && _layout.FingerGroups[i, k] == groupKey)
+                    if (filledLayout[i, k] != LayoutData.SKIP
+                        && filledLayout[i, k] != LayoutData.NONE
+                        && _layout.FingerGroups[i, k] == groupKey)
                         res.Add((i, k));
                 }
             }
@@ -43,7 +46,7 @@ public class Sampler
             {
                 for (byte k = 0; k < _layout.YDim; k++)
                 {
-                    if (_layout.FixedKeys[i, k] != LayoutData.SKIP && _layout.Priorities[i, k] == pKey)
+                    if (_layout.FixedKeys[i, k] == LayoutData.NONE && _layout.Priorities[i, k] == pKey)
                         res.Add((i, k));
                 }
             }
@@ -53,6 +56,25 @@ public class Sampler
         }
     }
 
+    public string GetUsedKeys(char[,] filledLayout)
+    {
+        var xdim = filledLayout.GetLength(0);
+        var ydim = filledLayout.GetLength(1);
+        StringBuilder s = new();
+        for (int i = 0; i < xdim; i++)
+        {
+            for (int k = 0; k < ydim; k++)
+            {
+                if (filledLayout[i, k] != LayoutData.SKIP && filledLayout[i, k] != LayoutData.NONE)
+                {
+                    s.Append(filledLayout[i, k]);
+                }
+            }
+        }
+
+        return s.ToString();
+    }
+    
     public float GetWeightOfPlacedKey(byte x, byte y, char key, ref char[,] filledLayout)
     {
         return _data.GetAdjMetric(filledLayout[x, y], key);
@@ -63,6 +85,9 @@ public class Sampler
 
     public float GetWeight((byte x, byte y) pos1, (byte x, byte y) pos2, byte dist, ref char[,] filledLayout)
     {
+        if (filledLayout[pos1.x, pos1.y] == LayoutData.SKIP || filledLayout[pos2.x, pos2.y] == LayoutData.SKIP)
+            return 0;
+        
         return _data.GetAdjMetric(filledLayout[pos1.x, pos1.y], filledLayout[pos2.x, pos2.y]);
     }
 
@@ -99,30 +124,22 @@ public class Sampler
     //bool IsValidEmpty(int x, int y) =>
     //    x >= 0 && x < w && y >= 0 && y < h && chars[x, y] != SKIP && chars[x, y] == NONE;
 
-    //Assume Keypos is valid
-    public float SampleKey(ref char[,] filledLayout, (byte x, byte y) keyPos)
+    public float GetLayoutScoreTotal(ref char[,] filledLayout)
     {
-        float result = 0;
-        foreach (var pos in GetCompetingPositions(keyPos.x, keyPos.y))
-        {
-            if (filledLayout[pos.x, pos.y] != LayoutData.SKIP && filledLayout[pos.x, pos.y] != LayoutData.NONE)
-                result += GetWeight(pos.x, pos.y, keyPos.x, keyPos.y, pos.dist, ref filledLayout);
-        }
-
-        return result;
-    }
-
-    void GetLayoutScore(ref char[,] filledLayout)
-    {
-        // for each finger-set
+        // for each finger-set with existing keys
         // get finger set score
         // for each unique pair
         // sum up score
         
-        var lists = FingerSetPositions();
+        var lists = FingerSetPositionsForPlacedKeys(filledLayout);
+
+        
         float score = 0;
         foreach (var posSet in lists)
         {
+            if (posSet.Count() < 2)
+                continue;
+            
             var ids = posSet.Select((p, i) => i).ToList();
             var pairs = new Combinations<int>(ids, 2);
             foreach (var pair in pairs)
@@ -132,13 +149,40 @@ public class Sampler
                 score += GetPairScore(pos1.x, pos1.y, pos2.x, pos2.y, ref filledLayout);
             }
         }
+
+        return score;
     }
 
+    public float GetLayoutScoreMax(ref char[,] filledLayout)
+    {
+        // for each finger-set with existing keys
+        // get finger set score
+        // for each unique pair
+        // sum up score
+        
+        var lists = FingerSetPositionsForPlacedKeys(filledLayout);
+        float score = 0;
+        foreach (var posSet in lists)
+        {
+            var ids = posSet.Select((p, i) => i).ToList();
+            var pairs = new Combinations<int>(ids, 2);
+            foreach (var pair in pairs)
+            {
+                var pos1 = posSet[pair[0]];
+                var pos2 = posSet[pair[1]];
+                var pairS = GetPairScore(pos1.x, pos1.y, pos2.x, pos2.y, ref filledLayout);
+                score = Math.Max(score, pairS);
+            }
+        }
+
+        return score;
+    }
+    
     public float GetPairScore(byte x1, byte y1, byte x2, byte y2, ref char[,] layout)
     {
         byte dist = (byte)Math.Max(Math.Abs(x1 - x2), Math.Abs(y1 - y2));
-        GetWeight(x1, y1, x2,y2, dist, ref layout);
-        return 0;
+        var s = GetWeight(x1, y1, x2,y2, dist, ref layout);
+        return s;
     }
     
     //we in fact must sample each unique pair in each finger set.

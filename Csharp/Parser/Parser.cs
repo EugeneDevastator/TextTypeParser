@@ -71,8 +71,8 @@ public class Parser
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
         //GetCrumbs(text,99);
-        ExtractCrumbData(text,3);
-        //ExtractDataAllChars(text);
+        //ExtractCrumbData(text,3);
+        ExtractDataAllChars(text);
         //ExtractDataAllCharsFirstNOfWord(text, 4);
         WriteDataFiles();
         WriteTables();
@@ -82,7 +82,7 @@ public class Parser
     private void WriteTables()
     {
         WriteCounts();
-        WriteAdjTable(adjacencyZero, "AdjZeroDir.csv", "ADJ ZERO DIR");
+        WriteAdjTable(adjacencyZero, "_adjZeroDir.csv", "ADJ ZERO DIR");
         WriteAdjTable(adjacencyZero+adjacencyZero.transpose(), "AdjZeroAny.csv", "ADJ ZERO any");
         WriteAdjTable(adjacencyOne, "AdjOneDir.csv", "ADJ ONE DIR");
         WriteAdjTable(adjacencyOne+adjacencyOne.transpose(), "AdjOneDir.csv", "ADJ ONE any");

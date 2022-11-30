@@ -2,31 +2,44 @@
 
 public class LayoutPrinter
 {
-   //void PrintForTable()
-   //{
-   //    for (int k = 0; k < h; k++)
-   //    {
-   //        string line = "";
-   //        for (int i = 0; i < w; i++)
-   //        {
-   //            line += _keyData.NameOf(chars[i, k]) + " ";
-   //        }
+    private SymbolMap _symbolMap;
 
-   //        Console.WriteLine(line);
-   //    }
-   //}
+    public LayoutPrinter(SymbolMap symbolMap)
+    {
+        _symbolMap = symbolMap;
+    }
 
-   //void PrintRaw()
-   //{
-   //    for (int k = 0; k < h; k++)
-   //    {
-   //        string line = "";
-   //        for (int i = 0; i < w; i++)
-   //        {
-   //            line += chars[i, k];
-   //        }
+    public void PrintForTable(char[,] layout)
+    {
+        var h = layout.GetLength(1);
+        var w = layout.GetLength(0);
+        for (int k = 0; k < h; k++)
+        {
+            string line = "";
+            for (int i = 0; i < w; i++)
+            {
+                var key = layout[i, k];
+                if (key == '*')
+                    key = '_';
+                line += _symbolMap.NameOfKey(key) + " ";
+            }
 
-   //        Console.WriteLine(line);
-   //    }
-   //}
+            Console.WriteLine(line);
+        }
+        
+    }
+
+    //void PrintRaw()
+    //{
+    //    for (int k = 0; k < h; k++)
+    //    {
+    //        string line = "";
+    //        for (int i = 0; i < w; i++)
+    //        {
+    //            line += chars[i, k];
+    //        }
+
+    //        Console.WriteLine(line);
+    //    }
+    //}
 }

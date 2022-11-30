@@ -1,8 +1,10 @@
 ﻿public interface IDataContainer
 {
     float GetAdjMetric(char a, char b);
-    void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir);
-    void SetSymbols(string symbols);
+    void SetKeys(string keys);
     void SaveToFolder(string folder);
     void LoadFromFolder(string folder);
+    string Keys { get; }
+    int[] KeyCounts { get; }
+    void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys);
 }

@@ -10,7 +10,7 @@ public class SymbolMap
 {
     public Dictionary<char, byte> _visualToUniqueIndex = new Dictionary<char, byte>();
     private Dictionary<char, char> _visualToKey = new Dictionary<char, char>();
-    private string _keyForSign;
+    private string _keyForSignString;
     
 
     
@@ -55,9 +55,9 @@ public class SymbolMap
         LettersUpper = LettersLower.ToUpper();
         LettersVisual = LettersLower + LettersUpper;
         SignsVisual = LettersLower + LettersLower.ToUpper() + _symbolsVisual;
-        _keyForSign = LettersLower + LettersLower + _symbolsKeys;
+        _keyForSignString = LettersLower + LettersLower + _symbolsKeys;
         
-        KeyboardKeys = new string(_keyForSign.Distinct().ToArray());
+        KeyboardKeys = new string(_keyForSignString.Distinct().ToArray());
         _keyNames = new string[KeyboardKeys.Length];
         for (int i = 0; i < KeyboardKeys.Length; i++)
         {
@@ -67,15 +67,16 @@ public class SymbolMap
         
         for (var i = 0; i < SignsVisual.Length; i++)
         {
-            _visualToKey.Add(SignsVisual[i], _keyForSign[i]);
-            _visualToUniqueIndex.Add(SignsVisual[i],_keyIndices[_keyForSign[i]]);
+            _visualToKey.Add(SignsVisual[i], _keyForSignString[i]);
+            _visualToUniqueIndex.Add(SignsVisual[i],_keyIndices[_keyForSignString[i]]);
         }
     }
 
-    public char VisualToKey(char v) => _keyForSign[v];
+    public char VisualToKey(char v) => _visualToKey[v];
     public byte KeyToIndex(char k) => _keyIndices[k];
     public byte VisToIndex(char v) => _visualToUniqueIndex[v] ;//GetKeyIndex(VisualToKey(v));
-    public string NameOfKey(char k) => _keyNames[KeyToIndex(k)];
+    public string NameOfKey(char k) => HasKey(k) ? _keyNames[KeyToIndex(k)] : k.ToString();
     public string NameOfKeyIndex(byte idx) => _keyNames[idx];
     public bool HasVisual(char v) => _visualToKey.ContainsKey(v);
+    public bool HasKey(char k) => _keyIndices.ContainsKey(k);
 }

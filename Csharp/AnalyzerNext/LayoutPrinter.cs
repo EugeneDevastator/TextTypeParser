@@ -1,4 +1,6 @@
-﻿namespace AnalyzerNext;
+﻿using System.Text;
+
+namespace AnalyzerNext;
 
 public class LayoutPrinter
 {
@@ -8,11 +10,13 @@ public class LayoutPrinter
     {
         _symbolMap = symbolMap;
     }
-
+    
+    [STAThread]
     public void PrintForTable(char[,] layout)
     {
         var h = layout.GetLength(1);
         var w = layout.GetLength(0);
+        StringBuilder stringBuilder = new();
         for (int k = 0; k < h; k++)
         {
             string line = "";
@@ -22,11 +26,18 @@ public class LayoutPrinter
                 if (key == '*')
                     key = '_';
                 line += _symbolMap.NameOfKey(key) + " ";
+                stringBuilder.Append(_symbolMap.NameOfKey(key)).Append("\t");
             }
 
+            stringBuilder.Append("\n");
             Console.WriteLine(line);
         }
-        
+        Thread thread = new Thread(() => Clipboard.SetText(stringBuilder.ToString()));
+        thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
+        thread.Start(); 
+        thread.Join();
+
+        Console.WriteLine("COPIED TO CLIPBOARD");
     }
 
     //void PrintRaw()

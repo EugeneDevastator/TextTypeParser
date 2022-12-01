@@ -2,7 +2,7 @@
 
 namespace AnalyzerNext;
 
-public class LayoutData
+public class LayoutConfig
 {
     public const char SKIP = '_';
     public const char NONE = '*';
@@ -15,9 +15,9 @@ public class LayoutData
         //"_*****_*****_",
         //"_*rst*_*nei*_",
         //"*a****_****o*",
-        "*z****_****j*",
-        "**ts**_**ie**",
-        "*alc**_****o*",
+        "******_******",
+        "***s**_**ie**",
+        "*a*c**_****o*",
     };
     
     public string PriorityKeysAscending = "0123456789ABCDEF";
@@ -43,7 +43,7 @@ public class LayoutData
     public int XDim => FixedKeys.GetLength(0);
     public int YDim => FixedKeys.GetLength(1);
     
-    public LayoutData()
+    public LayoutConfig()
     {
         FingerGroups = To2DArray(MakeSymmetry(_fingerGroups, true));
         Priorities = To2DArray(MakeSymmetry(_halfPriority, false));

@@ -49,7 +49,7 @@ public class ParserNext
         DirectoryInfo d = new DirectoryInfo(Constants.parsePath); //Assuming Test is your Folder
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
-        //GetCrumbs(text,99);
+         //GetCrumbs(text,99);
         //ExtractCrumbData(text,3);
         ExtractDataAllChars(text);
         ExtractDataAllCharsFirstNOfWord(text, 4);

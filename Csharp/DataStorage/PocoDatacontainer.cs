@@ -49,17 +49,18 @@
 
     public float GetAdjMetric(char a, char b) => _adjMetric[_keysToId[a], _keysToId[b]];
 
-    public void LoadFromFolder(string folder)
+    public void LoadFromFolder(string folder, float adjOneMul = 0f)
     {
         _keyCounts = _exporter.ReadVector<int>(Path.Combine(folder,CountsDatafile));
         _adjZeroDir = _exporter.ReadData<int>(Path.Combine(folder,AdjZeroDatafile));
         _adjOneDir = _exporter.ReadData<int>(Path.Combine(folder,AdjOneDatafile));
         _keys = File.ReadAllText(Path.Combine(folder,KeySetData));
+        
         _keyCount = KeyCounts.Length;
-        GenerateSecondOrderData();
+        GenerateSecondOrderData(adjOneMul);
     }
 
-    private void GenerateSecondOrderData()
+    private void GenerateSecondOrderData(float adjOneMul)
     {
         for (var i = 0; i < _keys.Length; i++)
         {
@@ -86,7 +87,9 @@
                     _adjZeroAny[i, k] = _adjZeroDir[i, k];
                 }
 
-                _adjMetric[i, k] = _adjZeroAny[i, k] + _adjOneAny[i,k]; //;/ (float)totalPresses;
+                _adjMetric[i, k] =
+                    (_adjZeroAny[i, k] + adjOneMul * _adjOneAny[i, k]) / totalPresses;
+                    ; //;/ (float)totalPresses;
             }
         }
     }

@@ -11,7 +11,7 @@ using NumSharp;
 
 public class Parser
 {
-    
+/*    
     /// TODO:
     /// add additional data per leter.
     /// f(char,int) = count of letter at word pos;
@@ -471,4 +471,5 @@ public class Parser
     {
         typableCounts[idx] += 1;
     }
+    */
 }

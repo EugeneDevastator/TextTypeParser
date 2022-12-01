@@ -61,6 +61,11 @@ public class NumpyDataContainer : IDataContainer
         throw new NotImplementedException();
     }
 
+    public void LoadFromFolder(string folder, float adjOneMul = 0)
+    {
+        throw new NotImplementedException();
+    }
+
     public void LoadFromFolder(string folder)
     {
         throw new NotImplementedException();

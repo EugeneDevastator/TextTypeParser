@@ -9,7 +9,8 @@ namespace AnalyzerNext;
 public class KeySetsGenerator
 {
     private IDataContainer _data;
-
+    // 1
+    // 2
     private LayoutConfig _layout;
 
     private KeySetSampler _sampler;

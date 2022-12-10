@@ -7,5 +7,5 @@ using System;
 //parser.Parse();
 
 var data = new PocoDatacontainer();
-var parser = new ParserNext(data);
+var parser = new ParserNext(data, Sources.Cyrilic);
 parser.Parse();

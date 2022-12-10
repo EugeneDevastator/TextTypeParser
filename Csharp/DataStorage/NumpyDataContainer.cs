@@ -19,10 +19,10 @@ public class NumpyDataContainer : IDataContainer
 
     public NumpyDataContainer()
     {
-        adjacencyZero = np.load(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile));
-        adjacencyOne = np.load(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile));
-        counts = np.load(Path.Combine(Constants.rootPath, Constants.CountsDatafile));
-        _keys = File.ReadAllText(Path.Combine(Constants.rootPath, Constants.KeySetData));
+       //adjacencyZero = np.load(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile));
+       //adjacencyOne = np.load(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile));
+       //counts = np.load(Path.Combine(Constants.rootPath, Constants.CountsDatafile));
+       //_keys = File.ReadAllText(Path.Combine(Constants.rootPath, Constants.KeySetData));
 
         adjacencyZeroAny = adjacencyZero.copy();
         adjacencyOneAny = adjacencyOne.copy();
@@ -74,6 +74,16 @@ public class NumpyDataContainer : IDataContainer
     public string Keys { get; }
     public int[] KeyCounts { get; }
     public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys, string language)
+    {
+        
+    }
+
+    public int GetKeyCount(char k)
     {
         throw new NotImplementedException();
     }

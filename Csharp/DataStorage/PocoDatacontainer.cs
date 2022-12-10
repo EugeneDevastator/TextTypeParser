@@ -1,9 +1,12 @@
-﻿public class PocoDatacontainer : IDataContainer
+﻿using System.Text;
+
+public class PocoDatacontainer : IDataContainer
 {
     public const string AdjOneDatafile = "AdjOne.csv";
     public const string AdjZeroDatafile = "AdjZero.csv";
     public const string CountsDatafile = "counts.csv";
     public const string KeySetData = "keyset.txt";
+    public const string LanguageData = "languageLow.txt";
     
     private int[,] _adjZeroDir; // y follows x
     private int[,] _adjOneDir;
@@ -16,6 +19,7 @@
     private long totalPresses;
     private float[,] _adjMetric;
     private Dictionary<char, int> _keysToId=new();
+    private string _lowerLetterLanguage;
 
     public PocoDatacontainer()
     {
@@ -25,14 +29,18 @@
     public string Keys => _keys;
     public int[] KeyCounts => _keyCounts;
 
+    public string LowerLetterLanguage => _lowerLetterLanguage;
+
     public void SetKeys(string keys)
     {
         _keys = keys;
     }
 
+    public int GetKeyCount(char k) => _keyCounts[_keysToId[k]];
   
-    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys)
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys, string lowerLetterLanguage)
     {
+        _lowerLetterLanguage = lowerLetterLanguage;
         _keyCounts = keyCounts;
         _adjZeroDir = adjZeroDir;
         _adjOneDir = adjOneDir;
@@ -45,6 +53,20 @@
         _exporter.WriteData(Path.Combine(folder,AdjZeroDatafile), _adjZeroDir);
         _exporter.WriteData(Path.Combine(folder,AdjOneDatafile), _adjOneDir);
         File.WriteAllText(Path.Combine(folder,KeySetData),Keys);
+        File.WriteAllText(Path.Combine(folder,LanguageData),LowerLetterLanguage);
+
+        for (var i = 0; i < _keys.Length; i++)
+        {
+            _keysToId.Add(_keys[i],i);
+        }
+        
+        var s = Keys.Select(k => (k, GetKeyCount(k))).ToArray();
+        StringBuilder str = new StringBuilder();
+        foreach (var entry in s)
+        {
+            str.Append(entry.k).Append(";").Append(entry.Item2).Append("\n");
+        }
+        File.WriteAllText(Path.Combine(folder,KeySetData+"_View"),str.ToString());
     }
 
     public float GetAdjMetric(char a, char b) => _adjMetric[_keysToId[a], _keysToId[b]];
@@ -55,6 +77,7 @@
         _adjZeroDir = _exporter.ReadData<int>(Path.Combine(folder,AdjZeroDatafile));
         _adjOneDir = _exporter.ReadData<int>(Path.Combine(folder,AdjOneDatafile));
         _keys = File.ReadAllText(Path.Combine(folder,KeySetData));
+        _lowerLetterLanguage = File.ReadAllText(Path.Combine(folder,LanguageData));
         
         _keyCount = KeyCounts.Length;
         GenerateSecondOrderData(adjOneMul);

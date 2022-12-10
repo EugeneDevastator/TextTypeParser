@@ -17,17 +17,19 @@ public class ParserNext
     private int[] keyCounts;
 
     private string keys;
-    private SymbolMap _symbolMap;
+    private SymbolMap _symbols;
     private WordSplitter _worder;
     private IDataContainer _data;
+    private ParseParams _parseParams;
 
-    public ParserNext(IDataContainer data)
+    public ParserNext(IDataContainer data, ParseParams parseParams)
     {
+        _parseParams = parseParams;
         _data = data;
-        _symbolMap = new SymbolMap();
-        keys = _symbolMap.KeyboardKeys;
-        _worder = new WordSplitter(_symbolMap);
-        Console.WriteLine(_symbolMap.KeyboardKeys.ToString());
+        _symbols = new SymbolMap(parseParams.Language);
+        keys = _symbols.KeyboardKeys;
+        _worder = new WordSplitter(_symbols);
+        Console.WriteLine(_symbols.KeyboardKeys.ToString());
 
         //_keyData = new KeyData(_symbolMap.UniqueKeys);
 
@@ -41,26 +43,29 @@ public class ParserNext
         }
     }
 
-    private bool IsValidVis(char v) => _symbolMap.SignsVisual.Contains(v);
-    private int IndexOfVis(char v) => _symbolMap.VisToIndex(v);
+    private bool IsValidVis(char v) => _symbols.SignsVisual.Contains(v);
+    private int IndexOfVis(char v) => _symbols.VisToIndex(v);
     
     public void Parse()
     {
-        DirectoryInfo d = new DirectoryInfo(Constants.parsePath); //Assuming Test is your Folder
+        DirectoryInfo d = new DirectoryInfo(_parseParams.ParsingPath); //Assuming Test is your Folder
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
          //GetCrumbs(text,99);
-        //ExtractCrumbData(text,3);
-        ExtractDataAllChars(text);
-        ExtractDataAllCharsFirstNOfWord(text, 4);
+        if (_parseParams.Flags.HasFlag(WorderFlags.IntelliSense))
+            ExtractCrumbData(text,3);
+        if (_parseParams.Flags.HasFlag(WorderFlags.SimpleText))
+            ExtractDataAllChars(text);
+        if (_parseParams.Flags.HasFlag(WorderFlags.First4Letters))
+            ExtractDataAllCharsFirstNOfWord(text, 4);
         WriteDataFiles();
     }
 
     private void WriteDataFiles()
     {
         //TODO delegate to datasource
-        _data.Fill(keyCounts,adjZero,adjOne,_symbolMap.KeyboardKeys);
-        _data.SaveToFolder("D:\\1\\intelli\\");
+        _data.Fill(keyCounts,adjZero,adjOne,_symbols.KeyboardKeys, _symbols.LanguageLower);
+        _data.SaveToFolder(_parseParams.DataPath);
         //  for (int i = 0; i < typable.Length; i++)
         //  {
         //      for (int k = 0; k < typable.Length; k++)
@@ -84,8 +89,8 @@ public class ParserNext
         string separ = " ;.\"" + '\n';
 
         {
-            var UPPER = _symbolMap.LettersLower.ToUpper();
-            var Letters = _symbolMap.LettersLower.ToUpper() + _symbolMap.LettersLower;
+            var UPPER = _symbols.LettersLower.ToUpper();
+            var Letters = _symbols.LettersLower.ToUpper() + _symbols.LettersLower;
             int pos = 0;
             char ka = '\0', kb = '\0', kc = '\0';
             byte ia = 0, ib = 0, ic = 0;
@@ -138,9 +143,9 @@ public class ParserNext
             {
                 
                 var last = word[^1];
-                if (_symbolMap.SignsVisual.Contains(last))
+                if (_symbols.SignsVisual.Contains(last))
                 {
-                    AddCountData(_symbolMap.VisToIndex(word[^1]));
+                    AddCountData(_symbols.VisToIndex(word[^1]));
                     if (sampleOut.Length < 3000)
                         sampleOut.Append(word[^1]);
                 }
@@ -151,16 +156,16 @@ public class ParserNext
                 ResetWord();
                 foreach (var cr in seq)
                 {
-                    if (_symbolMap.SignsVisual.Contains(cr))
+                    if (_symbols.SignsVisual.Contains(cr))
                     {
-                        keyOfVisual = _symbolMap.VisualToKey(cr);
+                        keyOfVisual = _symbols.VisualToKey(cr);
                         kc = kb;
                         kb = ka;
                         ka = keyOfVisual;
 
                         ic = ib;
                         ib = ia;
-                        ia = _symbolMap.KeyToIndex(keyOfVisual);
+                        ia = _symbols.KeyToIndex(keyOfVisual);
                         //cba
                         if (kc != '\0')
                         {
@@ -207,7 +212,7 @@ public class ParserNext
         }
 
         var result = allofthem.ToString();
-        File.WriteAllText(Path.Combine(Constants.rootPath,"All.txt"),result);
+        //File.WriteAllText(Path.Combine(Constants.rootPath,"All.txt"),result);
         return result;
         
     }
@@ -273,18 +278,18 @@ public class ParserNext
                     Console.WriteLine(pos / totalSize);
                 //not really interested in uppercasing.
 
-                if (_symbolMap.SignsVisual.Contains(cr))
+                if (_symbols.SignsVisual.Contains(cr))
                 {
-                    key = _symbolMap.VisualToKey(cr);
+                    key = _symbols.VisualToKey(cr);
                     kc = kb;
                     kb = ka;
                     ka = key;
 
                     ic = ib;
                     ib = ia;
-                    ia = _symbolMap.KeyToIndex(key);
+                    ia = _symbols.KeyToIndex(key);
                     
-                    AddCountData(_symbolMap.KeyToIndex(key));
+                    AddCountData(_symbols.KeyToIndex(key));
                     //Fir: a = F
                     //b=F
                     //a=i
@@ -300,7 +305,7 @@ public class ParserNext
                         adjZero[ib, ia] += 1;
                         //Console.Write("0:" + kb.ToString() + ka.ToString() + " ");
                     }
-                    if (_symbolMap.WordSeparators.Contains(cr))
+                    if (_symbols.WordSeparators.Contains(cr))
                     {
                         kc = ka = kb = '\0';
                     }

@@ -12,16 +12,17 @@ public class SymbolMap
     private Dictionary<char, char> _visualToKey = new Dictionary<char, char>();
     private string _keyForSignString;
     
+    public string KeyboardKeys { get; private set; }
+    public string SignsVisual { get; private set; }
+    public string LettersVisual  { get; private set; }
 
+    public string LanguageLower => LettersLower;
     
-    public string KeyboardKeys;
-    public string SignsVisual;
-    public string LettersVisual;
+    public string LettersUpper { get; }
+    public string LettersLower { get; }
     
-    public string LettersUpper;
-    public string LettersLower = "abcdefghijklmnopqrstuvwxyz";
-    private string _symbolsVisual =     " 9(0):;" + '\"' + "\'" + ",<.>/?-_=+[{]}" + '\\' + "|";
-    private string _symbolsKeys = " 9900;;" + "\'" + "\'" + ",,..//--==[[]]" + '\\' + '\\'; //non-shifted keys.
+    private string _symbolsVisual = " 9(0):;" + '\"' + "\'" + ",<.>/?-_=+[{]}" + '\\' + "|";
+    private string _symbolsKeys =   " 9900;;" + "\'" + "\'" + ",,..//--==[[]]" + '\\' + '\\'; //non-shifted keys.
 
     public IReadOnlyDictionary<char, byte> KeyIndices => _keyIndices;
     private Dictionary<char, byte> _keyIndices = new Dictionary<char, byte>();
@@ -43,15 +44,14 @@ public class SymbolMap
     
     public string[] _keyNames;
     
-
-
     /// <summary>
     /// symbols that end words, cannot be typed right now
     /// </summary>
     public string WordSeparators = " ;.,[]{}()-+=/*\"?<>";
 
-    public SymbolMap()
+    public SymbolMap(string lowerLetters)
     {
+        LettersLower = lowerLetters;
         LettersUpper = LettersLower.ToUpper();
         LettersVisual = LettersLower + LettersUpper;
         SignsVisual = LettersLower + LettersLower.ToUpper() + _symbolsVisual;

@@ -9,6 +9,8 @@ public class KeySetSampler
         _data = data;
     }
 
+    public int GetFingerMainCount(int i, ref LogicalKeySet set) => _data.GetKeyCount(set.Main[i]);
+    
     public float GetTotalScore(ref LogicalKeySet set, byte[] quadFingerPlaces)
     {
         float sum = 0;

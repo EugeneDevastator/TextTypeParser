@@ -11,8 +11,11 @@ public class KeySetsGenerator
     private IDataContainer _data;
     // 1
     // 2
+    // staged
     private LayoutConfig _layout;
 
+    
+    //unstaged
     private KeySetSampler _sampler;
     // find lowest score combinations for each, thinking that index finger can handle 4 keys.
 // and find lowest score for all.
@@ -116,23 +119,27 @@ public class KeySetsGenerator
         }
         
         //REMAINDER.
-        //keysRemain = FillToCount(keysRemain, FINGERS);
-        //(sampleKeys,keysRemain) = Decap(keysRemain,FINGERS);
-        //cacheSet = mainKeyset;
-        //bestScore = float.MaxValue;
-        //
-        //permutations = new Variations<char>(sampleKeys.ToCharArray(), FINGERS);
-        //foreach (var perm in permutations)
-        //{
-        //    cacheSet.Remainder = perm.ToArray();
-        //    score = _sampler.GetTotalScore(ref cacheSet, bestPlaces);
-        //    if (score < bestScore)
-        //    {
-        //        mainKeyset = cacheSet;
-        //        bestScore = score;
-        //    }
-        //}
+        if (true)
+        {
+            keysRemain = FillToCount(keysRemain, FINGERS);
+            (sampleKeys, keysRemain) = Decap(keysRemain, FINGERS);
+            //sampleKeys = FillToCount(sampleKeys, FINGERS);
+            cacheSet = mainKeyset;
+            bestScore = float.MaxValue;
 
+            permutations = new Variations<char>(sampleKeys.ToCharArray(), FINGERS);
+            foreach (var perm in permutations)
+            {
+                cacheSet.Remainder = perm.ToArray();
+                score = _sampler.GetTotalScore(ref cacheSet, bestPlaces);
+                if (score < bestScore)
+                {
+                    mainKeyset = cacheSet;
+                    bestScore = score;
+                }
+            }
+        }
+        
         //var all = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
         //all.RemoveAt(bestPlaces[0]);
         //all.RemoveAt(bestPlaces[1]);
@@ -143,17 +150,40 @@ public class KeySetsGenerator
         //{
         //    
         //}
+
+        var scores = Enumerable.Range(0, mainKeyset.Fingers)
+            .Select(i => (i,_sampler.SampleFinger((byte)i, ref mainKeyset, ref bestPlaces))).ToArray();
+        var topMiddles = scores
+            .Where(s=>mainKeyset.SecondComplement[(byte)s.i] != '_')
+            .OrderByDescending(s => s.Item2)
+            .Select(s=>s.i).ToArray()[..2];
+        var topTwoMain = 
+            scores.Where(s=>!bestPlaces.Contains((byte)s.i))
+                .Where(s=>mainKeyset.SecondComplement[(byte)s.i] == '_')
+                .OrderByDescending(s => 
+                    _sampler.GetFingerMainCount(s.i,ref mainKeyset))
+                .Select(s=>s.i)
+                .ToArray()[..2];
         
+        var lowTwo = scores.OrderBy(s => s.Item2).Select(s=>s.i).ToArray()[..2];
+        
+        Console.WriteLine("\n");
         for (byte i = 0; i < mainKeyset.Fingers; i++)
         {
             bool star = bestPlaces.Contains(i);
+            bool middle = topMiddles.Contains(i);
+            bool pinky = lowTwo.Contains(i);
+            bool ring = topTwoMain.Contains(i);
             Console.WriteLine(mainKeyset.Main[i].ToString()
                               +mainKeyset.FirstComplement[i].ToString()
                               +mainKeyset.SecondComplement[i].ToString()
                               +mainKeyset.Remainder[i].ToString()
                               +" : "
                               +_sampler.SampleFinger(i,ref mainKeyset,ref bestPlaces)
-                              + (star ? "[*]" : "")
+                              + (star ? "[*idx]" : "")
+                              + (ring ? "<R>" : "")
+                              + (middle ? "(M)" : "")
+                              + (pinky ? ".p." : "")
                               );
         }
         Console.WriteLine(keysRemain);

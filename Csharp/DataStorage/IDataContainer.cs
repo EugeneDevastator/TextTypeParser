@@ -6,5 +6,6 @@
     void LoadFromFolder(string folder, float adjOneMul = 0f);
     string Keys { get; }
     int[] KeyCounts { get; }
-    void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys);
+    void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys, string language);
+    int GetKeyCount(char k);
 }

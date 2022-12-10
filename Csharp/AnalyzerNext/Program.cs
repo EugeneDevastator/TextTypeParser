@@ -4,6 +4,9 @@ using System.Text;
 using AnalyzerNext;
 using Combinatorics.Collections;
 
+var transformer = new LayoutTransformer();
+transformer.GetQwertyForSkewmak();
+return;
     Console.OutputEncoding= Encoding.UTF8;
     var source = Sources.Cyrilic;
     var layout = new LayoutConfig();

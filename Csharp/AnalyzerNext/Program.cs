@@ -2,6 +2,7 @@
 
 using System.Text;
 using AnalyzerNext;
+using AnalyzerUtils;
 using Combinatorics.Collections;
 
 var transformer = new LayoutTransformer();

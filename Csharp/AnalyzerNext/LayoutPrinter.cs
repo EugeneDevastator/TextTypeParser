@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace AnalyzerNext;
+namespace AnalyzerUtils;
 
 public class LayoutPrinter
 {

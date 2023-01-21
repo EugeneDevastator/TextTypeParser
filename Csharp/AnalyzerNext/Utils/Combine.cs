@@ -1,6 +1,6 @@
 ﻿using Combinatorics.Collections;
 
-namespace AnalyzerNext;
+namespace AnalyzerUtils;
 
 public class Combine<T>
 {

@@ -1,26 +1,26 @@
 ﻿using System.Text;
 
-namespace AnalyzerNext;
+namespace AnalyzerUtils;
 
 public class LayoutTransformer
 {
     public static readonly string[] QWERTY = new string[]
     {
-        "qwertyuiop[]\\",
+        "`qwertyuiop[]\\",
         "asdfghjkl;'",
         "zxcvbnm,./"
     };
 
     public static readonly string[] QWERT_CYR = new string[]
     {
-        "йцукенгшщзхъ",
+        "ёйцукенгшщзхъ",
         "фывапролджэ",
         "ячсмитьбю"
     };
 
     public static readonly string[] SKEWMAK = new string[]
     {
-        "_,lgwf_xkyb\\=",
+        "_,lgwf_xkyb'\\",
         "`urstv_hniez/",
         "jalcd;_.pmboq"
     };
@@ -28,9 +28,9 @@ public class LayoutTransformer
 
     public static readonly string[] SKEWMAK_CYR = new string[]
     {
-        "_цлбпш_хжукэ_",
-        "ьпрнтз_гсиеяф",
-        "чалвд,_.мыкою"
+        "__лбпж_ьчукэ_",
+        "шюрнтз_гсиеяф",
+        "халвд__.мыкоц"
     };
 
     public void GetQwertyForSkewmak()
@@ -98,7 +98,7 @@ public class LayoutTransformer
         { 'J', $"24" },
         { 'K', $"25" },
         { 'L', $"26" },
-        { ',', $"27" },
+        { ';', $"27" },
         { '\'', $"28" },
         { '`', $"29" },
         { '\\', $"2b" },
@@ -110,10 +110,10 @@ public class LayoutTransformer
         { 'N', $"31" },
         { 'M', $"32" },
         { ',', $"33" },
-        { ';', $"34" },
+        { '.', $"34" },
         { '/', $"35" },
         { ' ', $"39" },
-        { '.', $"53" },
+        //{ '.', $"53" },
 //{'\\ 56		0	005c	002f	001c	-1		// REVERSE SOLIDUS, SOLIDUS, INFORMATION SEPARATOR FOUR, <none> most likely unused left oem key.
     };
 

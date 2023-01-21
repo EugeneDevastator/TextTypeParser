@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel;
 using System.Text;
+using AnalyzerNext;
 using Combinatorics.Collections;
 
-namespace AnalyzerNext;
+namespace AnalyzerUtils;
 
 public class Sampler
 {

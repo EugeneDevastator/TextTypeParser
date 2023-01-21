@@ -1,7 +1,8 @@
-﻿using Combinatorics.Collections;
-using static AnalyzerNext.Utils;
+﻿using AnalyzerNext;
+using Combinatorics.Collections;
+using static AnalyzerUtils.Utils;
 
-namespace AnalyzerNext;
+namespace AnalyzerUtils;
 
 public class LayoutGenerator
 {

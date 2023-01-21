@@ -1,10 +1,11 @@
 ﻿using System.Net.Security;
 using System.Security.Cryptography.Xml;
+using AnalyzerNext;
 using Combinatorics.Collections;
 using NumSharp.Utilities;
-using static AnalyzerNext.Utils;
+using static AnalyzerUtils.Utils;
 
-namespace AnalyzerNext;
+namespace AnalyzerUtils;
 
 public class KeySetsGenerator
 {
@@ -46,6 +47,15 @@ public class KeySetsGenerator
         }
 
         //for each of such combo get permutations of remaining keys..
+    }
+
+    public object Modify(object val, string eventName, int context)
+    {
+        val = eventName switch
+        {
+            "GetAttackerHit" => (int)val + 1
+        };
+        return val;
     }
 
     public void GenerateLayout()

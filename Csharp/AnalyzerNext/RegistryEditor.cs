@@ -1,4 +1,4 @@
-﻿namespace AnalyzerNext;
+﻿namespace AnalyzerUtils;
 
 public class RegistryEditor
 {

@@ -54,14 +54,16 @@ public class CharArray
         }
     }
 
-    public IEnumerable<(byte x, byte y)> CoordsIterator => GetCoordsIterator();
-    private IEnumerable<(byte x, byte y)> GetCoordsIterator()
+    public IEnumerable<(byte x, byte y)> CoordsIterator
     {
-        for (byte i = 0; i < Xdim; i++)
+        get
         {
-            for (byte k = 0; k < Ydim; k++)
+            for (byte i = 0; i < Xdim; i++)
             {
-                yield return (i, k);
+                for (byte k = 0; k < Ydim; k++)
+                {
+                    yield return (i, k);
+                }
             }
         }
     }

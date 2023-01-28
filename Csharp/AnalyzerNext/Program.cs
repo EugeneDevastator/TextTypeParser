@@ -5,24 +5,30 @@ using AnalyzerNext;
 using AnalyzerUtils;
 using Combinatorics.Collections;
 
-var transformer = new LayoutTransformer();
-transformer.GetQwertyForSkewmak();
+//var transformer = new LayoutTransformer();
+//transformer.GetQwertyForSkewmak();
+
+var w = new LayoutWeights();
+
+Console.OutputEncoding = Encoding.UTF8;
+var source = Sources.RiderEN;
+var layout = new LayoutConfig();
+var data = new PocoDatacontainer();
+data.LoadFromFolder(source.DataPath, 0.5f);
+var iterPath = "d:\\1\\Iterator\\iterData.txt";
+
+var iterator = new IterativeLayoutGenerator(new LayoutWeights(), layout, data, iterPath);
+iterator.Generate();
 return;
-    Console.OutputEncoding= Encoding.UTF8;
-    var source = Sources.Cyrilic;
-    var layout = new LayoutConfig();
-    var data = new PocoDatacontainer();
-    
-    data.LoadFromFolder(source.DataPath,0.5f);
 
-    var kg = new KeySetsGenerator(layout,data);
-    kg.GenerateLayout();
-    return;
-    
-    
-    var gen = new LayoutGenerator(new Sampler(data, layout), layout, data);
-    gen.GenerateLayout();
-    var printer = new LayoutPrinter(new SymbolMap(data.LowerLetterLanguage));
+var kg = new KeySetsGenerator(layout, data);
+kg.GenerateLayout();
+return;
 
-    printer.PrintForTable(gen.GeneratedLayout);
-    int a = 1;
+
+var gen = new LayoutGenerator(new Sampler(data, layout), layout, data);
+gen.GenerateLayout();
+var printer = new LayoutPrinter(new SymbolMap(data.LowerLetterLanguage));
+
+printer.PrintForTable(gen.GeneratedLayout);
+int a = 1;

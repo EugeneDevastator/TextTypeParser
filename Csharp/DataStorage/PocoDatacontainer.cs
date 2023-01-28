@@ -20,16 +20,20 @@ public class PocoDatacontainer : IDataContainer
     private float[,] _adjMetric;
     private Dictionary<char, int> _keysToId=new();
     private string _lowerLetterLanguage;
+    private SymbolMap _symbolMap;
 
     public PocoDatacontainer()
     {
         _exporter = new CSVExporter();
+
     }
 
     public string Keys => _keys;
     public int[] KeyCounts => _keyCounts;
 
     public string LowerLetterLanguage => _lowerLetterLanguage;
+
+    public SymbolMap SymbolMap => _symbolMap;
 
     public void SetKeys(string keys)
     {
@@ -81,6 +85,8 @@ public class PocoDatacontainer : IDataContainer
         
         _keyCount = KeyCounts.Length;
         GenerateSecondOrderData(adjOneMul);
+        
+        _symbolMap = new SymbolMap(_lowerLetterLanguage);
     }
 
     private void GenerateSecondOrderData(float adjOneMul)
@@ -111,7 +117,7 @@ public class PocoDatacontainer : IDataContainer
                 }
 
                 _adjMetric[i, k] =
-                    (_adjZeroAny[i, k] + adjOneMul * _adjOneAny[i, k]) / totalPresses;
+                    (_adjZeroAny[i, k] + adjOneMul * _adjOneAny[i, k]);// / totalPresses;
                     ; //;/ (float)totalPresses;
             }
         }

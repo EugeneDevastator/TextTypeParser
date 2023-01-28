@@ -1,4 +1,5 @@
-﻿using AnalyzerUtils;
+﻿using System.Drawing.Text;
+using AnalyzerUtils;
 using MoreLinq.Extensions;
 using static AnalyzerUtils.Utils;
 namespace AnalyzerNext;
@@ -12,15 +13,15 @@ public class LayoutWeights
         "Ypdcba",
     };
 
-    private string pairsEasy = $"rd,mc,ib,rR,mM,iI,in,pP,Nn,na";
-    private string pairsMedium = $"ia,pY,ba,NI";
-    private string pairsHard = $"Rd,Mc,Ib,Nb,Na,iN,pQ,QY,PY,Pd,da";
-    private string pairsVeryhard = $"Rc,Gp,Gd,Gm";
-    
-    private float pairsEasyW = 1f;
-    private float pairsMediumW = 1.5f;
-    private float pairsHardW = 2f;
-    private float pairsVeryhardW = 4f;
+    private (float w, string pairs)[] pairSets = new[]
+    {
+        (0.8f, $"rd,mc,ib"),
+        (1f, $"rR,mM,iI,in,pP,na"),
+        (1.5f, $"ba,IN,ia,nN,iN,RP"),
+        (3f, $"pY,Mc,Ib,Ia,Nb,Na,iN,pQ,QY,PY,Pd,PG"),
+        (4f, $"Rc,Gp,Gd,Gm,RG,Gr,Rp,Rd"),
+    };
+
     public Dictionary<KeyCoord, List<KeyCoord>> WeightedTargets = new Dictionary<KeyCoord, List<KeyCoord>>(); 
     
     public LayoutWeights()
@@ -29,23 +30,8 @@ public class LayoutWeights
 
         var halfLayout = To2DArray(_keyPlacesLeftside);
         var weightedPairs = new List<(char a, char b, float w)>();
-
-        foreach (var s in pairsEasy.Split($","))
-            weightedPairs.Add((s[0], s[1], pairsEasyW));
-        foreach (var s in pairsMedium.Split($","))
-            weightedPairs.Add((s[0], s[1], pairsMediumW));
-        foreach (var s in pairsHard.Split($","))
-            weightedPairs.Add((s[0], s[1], pairsHardW));
-        foreach (var s in pairsVeryhard.Split($","))
-            weightedPairs.Add((s[0], s[1], pairsVeryhardW));
-
-        //reverse copy
-        for (var i = weightedPairs.Count - 1; i >= 0; i--)
-        {
-            var p = weightedPairs[i];
-            weightedPairs.Add((p.b, p.a, p.w));
-        }
-
+        
+        // fill coordinate lookup
         for (byte x = 0; x < halfLayout.GetLength(0); x++)
         {
             for (byte y = 0; y < halfLayout.GetLength(1); y++)
@@ -54,7 +40,21 @@ public class LayoutWeights
                 charToKeyPos.Add(key, (x, y));
             }
         }
-// fill cords and weights
+        byte fullWidth = (byte)(halfLayout.GetLength(0) * 2 + 1);
+        KeyCoord GetMirroredCoord(KeyCoord src) => new KeyCoord((byte)(fullWidth - src.x - 1), src.y, src.w);
+
+
+        //create double sided pairs for half layout
+        foreach (var set in pairSets)
+        {
+            foreach (var pairChars in set.pairs.Split($","))
+            {
+                weightedPairs.Add((pairChars[0], pairChars[1], set.w));
+                weightedPairs.Add((pairChars[1], pairChars[0], set.w)); //mirror pair
+            }
+        }
+        
+        // fill cords and weights
         for (byte x = 0; x < halfLayout.GetLength(0); x++)
         {
             for (byte y = 0; y < halfLayout.GetLength(1); y++)
@@ -67,20 +67,23 @@ public class LayoutWeights
 
                 var sourceList = WeightedTargets[(x, y)];
                 weightedPairs.Where(p => p.a == key)
-                    .ForEach(p => sourceList.Add(new KeyCoord(charToKeyPos[p.b], p.w)));
+                    .ForEach(p =>
+                    {
+                        sourceList.Add(new KeyCoord(charToKeyPos[p.b], p.w));
+                    });
             }
         }
 
-        byte width = (byte)(halfLayout.GetLength(0) * 2 + 1);
-        //make reverse copy
-        foreach (var pos in WeightedTargets.Keys)
+        var oriKeys = WeightedTargets.Keys.ToArray();
+        foreach (var pos in oriKeys)
         {
-            var pMir = pos;
-            pMir.x = (byte)(width - pMir.x);
+            var pMir = GetMirroredCoord(pos);
             WeightedTargets.Add(pMir,new List<KeyCoord>());
             WeightedTargets[pMir]
                 .AddRange(WeightedTargets[pos]
-                    .Select(kc=>new KeyCoord((byte)(width - kc.x),kc.y,kc.w)));
+                    .Select(GetMirroredCoord));
         }
+
+        int a = 1;
     }
 }

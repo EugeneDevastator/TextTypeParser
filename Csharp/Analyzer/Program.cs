@@ -2,7 +2,6 @@
 using System.Net.Security;
 using CharData;
 using Combinatorics.Collections;
-using MainApp;
 using Microsoft.Win32.SafeHandles;
 using NumSharp;
 

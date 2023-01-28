@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using AnalyzerNext;
 
 namespace AnalyzerUtils;
 
@@ -40,17 +41,33 @@ public class LayoutPrinter
         Console.WriteLine("COPIED TO CLIPBOARD");
     }
 
-    //void PrintRaw()
-    //{
-    //    for (int k = 0; k < h; k++)
-    //    {
-    //        string line = "";
-    //        for (int i = 0; i < w; i++)
-    //        {
-    //            line += chars[i, k];
-    //        }
+    public void PrintRaw(CharArray layout) => PrintRaw(layout.Data);
+    public void PrintRaw(char[,] layout)
+    {
+        var h = layout.GetLength(1);
+        var w = layout.GetLength(0);
+        StringBuilder stringBuilder = new();
+        for (int k = 0; k < h; k++)
+        {
+            string line = "";
+            for (int i = 0; i < w; i++)
+            {
+                var key = layout[i, k];
+                line += _symbolMap.NameOfKey(key) + " ";
+                stringBuilder.Append(_symbolMap.NameOfKey(key)).Append("\t");
+            }
 
-    //        Console.WriteLine(line);
-    //    }
-    //}
+            stringBuilder.Append("\n");
+            Console.WriteLine(line);
+        }
+        Thread thread = new Thread(() => Clipboard.SetText(stringBuilder.ToString()));
+        thread.SetApartmentState(ApartmentState.STA); //Set the thread to STA
+        thread.Start(); 
+        thread.Join();
+
+        Console.WriteLine("COPIED TO CLIPBOARD");
+    }
+
+    public void PrintForTable(CharArray bestLayout) => PrintForTable(bestLayout.Data);
+
 }

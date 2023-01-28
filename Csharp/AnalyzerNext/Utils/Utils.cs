@@ -27,7 +27,7 @@ public static class Utils
         return source;
     }
 
-    public static void Copy2D(char[,] source, char[,] dst)
+    public static void Copy2D(ref char[,] source, ref char[,] dst)
     {
         for (int i = 0; i < source.GetLength(0); i++)
         {
@@ -37,15 +37,67 @@ public static class Utils
             }
         }
     }
+    
+    public static char[,] MakeNewCopy(ref char[,] source)
+    {
+        var arr = new char[source.Xdim(), source.Ydim()];
+        foreach (var (x, y) in source.CoordsIterator())
+        {
+            arr[x, y] = source[x, y];
+        }
 
+        return arr;
+    }
+    public static IEnumerable<(byte,byte,char)> AsEnumerable(char[,] source)
+    {
+        for (byte i = 0; i < source.GetLength(0); i++)
+        {
+            for (byte k = 0; k < source.GetLength(1); k++)
+            {
+                yield return (i, k, source[i, k]);
+            }
+        }
+    }
+    
+    public static void Iterate(ref char[,] source, Action<byte,byte,char> method)
+    {
+        for (byte i = 0; i < source.GetLength(0); i++)
+        {
+            for (byte k = 0; k < source.GetLength(1); k++)
+            {
+                method(i, k, source[i, k]);
+            }
+        }
+    }
+    public static void Replace(char[,] source, char find, char replace)
+    {
+        for (int i = 0; i < source.GetLength(0); i++)
+        {
+            for (int k = 0; k < source.GetLength(1); k++)
+            {
+                if (source[i, k] == find)
+                    source[i, k] = replace;
+            }
+        }
+    }
+    
+    public static void ReplaceAllWithOne(ref char[,] source, char[] find, char replace)
+    {
+        for (int i = 0; i < source.GetLength(0); i++)
+        {
+            for (int k = 0; k < source.GetLength(1); k++)
+            {
+                if (find.Contains(source[i,k]))
+                    source[i, k] = replace;
+            }
+        }
+    }
+    
     public static (string head, string tail) Decap(string src, int headCount)
     {
         return (src[..headCount], src[headCount..]);
     }
-    
-    
-    
-    
+
     public static char[,] To2DArray(string[] input)
     {
         var output = new char[input[0].Length, input.Length];

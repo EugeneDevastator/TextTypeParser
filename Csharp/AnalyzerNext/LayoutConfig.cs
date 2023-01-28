@@ -11,7 +11,7 @@ public class LayoutConfig
     public const char SKIP = '_';
     public const char NONE = '*';
     
-    public string SkippedKeys = " \\-90[]/'=;.,";
+    public string SkippedKeys = " \\-90[]/'=;.,`";
     public int AddToSample = 0;
     
     private string[] _fixedKeys = new string[]
@@ -44,8 +44,6 @@ public class LayoutConfig
     public char[,] Priorities;
     public char[,] FixedKeys;
 
-
-    
     public int XDim => FixedKeys.GetLength(0);
     public int YDim => FixedKeys.GetLength(1);
     

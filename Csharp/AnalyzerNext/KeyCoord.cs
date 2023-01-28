@@ -27,4 +27,9 @@ public struct KeyCoord
     }
     public static implicit operator KeyCoord((byte x, byte y) t) => new KeyCoord(t);
     public static implicit operator KeyCoord((int x, int y) t) => new KeyCoord(t);
+
+    public override string ToString()
+    {
+        return $"{x},{y} : {w}";
+    }
 }

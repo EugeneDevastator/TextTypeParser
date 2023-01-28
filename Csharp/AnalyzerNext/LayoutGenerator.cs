@@ -34,7 +34,7 @@ public class LayoutGenerator
         var posSets = _sampler.PriorityPositions();
         char[,] testLayout = new char[_layout.XDim,_layout.YDim];
         char[,] bestCurrentLayout = new char[_layout.XDim,_layout.YDim];
-        Copy2D(_layout.FixedKeys, bestCurrentLayout);
+        Copy2D(ref _layout.FixedKeys, ref bestCurrentLayout);
         
         foreach (var posSet in posSets)
         {
@@ -53,7 +53,7 @@ public class LayoutGenerator
 
             var sampleMinScore = float.MaxValue;
             IReadOnlyList<char> bestKeySet = null;
-            Copy2D(bestCurrentLayout, testLayout);
+            Copy2D(ref bestCurrentLayout, ref testLayout);
             foreach (var perm in permutations)
             {
                 for (int i = 0; i < posSet.Count; i++)
@@ -65,7 +65,7 @@ public class LayoutGenerator
                 var score = _sampler.GetLayoutScoreTotal(ref testLayout);
                 if (score < sampleMinScore)
                 {
-                    Copy2D(testLayout, bestCurrentLayout);
+                    Copy2D(ref testLayout, ref bestCurrentLayout);
                     sampleMinScore = score;
                     bestKeySet = perm;
                 }

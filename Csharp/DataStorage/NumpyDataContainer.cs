@@ -1,7 +1,7 @@
 ﻿using System.IO;
+using System.Net.WebSockets;
 using System.Runtime.CompilerServices;
 using CharData;
-using MainApp;
 using NumSharp;
 
 public class NumpyDataContainer : IDataContainer 
@@ -42,6 +42,7 @@ public class NumpyDataContainer : IDataContainer
         }
 
         GenerateMetricAdj();
+
     }
 
     private int IdxOf(char k) => _keys.IndexOf(k);
@@ -73,6 +74,8 @@ public class NumpyDataContainer : IDataContainer
 
     public string Keys { get; }
     public int[] KeyCounts { get; }
+    public SymbolMap SymbolMap { get; }
+
     public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys)
     {
         throw new NotImplementedException();

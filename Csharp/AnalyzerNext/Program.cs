@@ -4,6 +4,7 @@ using System.Text;
 using AnalyzerNext;
 using AnalyzerUtils;
 using Combinatorics.Collections;
+using MoreLinq.Extensions;
 
 //var transformer = new LayoutTransformer();
 //transformer.GetQwertyForSkewmak();

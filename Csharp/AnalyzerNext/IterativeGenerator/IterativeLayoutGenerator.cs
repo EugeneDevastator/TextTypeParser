@@ -40,7 +40,7 @@ public class IterativeLayoutGenerator
         var printer = new LayoutPrinter(_data.SymbolMap);
         var sampler = new CachedSampler(_weights, _data);
         
-        var worst = sampler.GetNWorstKeys(7, _weightingStandardLayout, "arstneio", "_*^").ToArray();
+        var worst = sampler.GetNWorstKeys(6, _weightingStandardLayout, "arstneio", "_*^").ToArray();
         Console.WriteLine(worst);
         _toFillLayout = new CharArray(_weightingStandardLayout);
         _toFillLayout.ReplaceAllWithOne(worst,TOFILL);

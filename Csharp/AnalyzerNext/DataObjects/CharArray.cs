@@ -24,24 +24,23 @@ public class CharArray
 
     public char this[int x, int y]
     {
-        get { return _data[x, y]; }
-        set { _data[x, y] = value; }
+        get => _data[x, y];
+        set => _data[x, y] = value;
     }
-    
-    public char this[KeyCoord c]
+    public char this[KeyCoord c]      
     {
-        get { return _data[c.x, c.y]; }
-        set { _data[c.x, c.y] = value; }
+        get => this[c.x, c.y];
+        set => this[c.x, c.y] = value;
     }
-    
-    public char this[(byte x, byte y) c]
+    public char this[(byte x, byte y) c]     
     {
-        get { return _data[c.x, c.y]; }
-        set { _data[c.x, c.y] = value; }
+        get => this[c.x, c.y];
+        set => this[c.x, c.y] = value;
     }
-    
+
     public byte Xdim => (byte)_data.GetLength(0);
     public byte Ydim => (byte)_data.GetLength(1);
+    
     private void ConvertFromStringList(string[] input)
     {
         _data = new char[input[0].Length, input.Length];

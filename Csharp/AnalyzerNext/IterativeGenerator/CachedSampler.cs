@@ -43,31 +43,46 @@ public class CachedSampler
 
     public List<char> GetNWorstKeys(int n, CharArray layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter)
     {
+        var sortedScores = GetKEysSortedByBadness(layout, dontList, dontMeter);
+        return sortedScores[..n].ToList();
+
+    }
+    public List<char> GetNWorstAndBestKeys(int n, CharArray layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter)
+    {
+        var sortedScores = GetKEysSortedByBadness(layout, dontList, dontMeter);
+        var top = sortedScores[..n];
+        var bot = sortedScores[^n..];
+        return
+            top.Concat(bot).ToList();
+        //.Take(n)
+        //.ToList();
+    }
+    private char[] GetKEysSortedByBadness(CharArray layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter)
+    {
         var nonTypable = new List<char> { Constants.EMPTY, Constants.IGNORE, Constants.TOFILL };
         var keysUsed = layout.Flatten;
-        var duplicated = keysUsed.Distinct().Where(k => keysUsed.Count(scan => scan == k)>1);
+        var duplicated = keysUsed.Distinct().Where(k => keysUsed.Count(scan => scan == k) > 1);
         var skipForMetering = nonTypable.Concat(duplicated).Concat(dontMeter);
         var skipForCandidates = nonTypable.Concat(duplicated).Concat(dontList);
 
-        var keyScores = _data.SymbolMap.LettersLower.ToDictionary(l=>l,l=>0f);
-        
+        var keyScores = _data.SymbolMap.LettersLower.ToDictionary(l => l, l => 0f);
+
         foreach (var coords in _meteringCoordsAll)
         {
             var keyA = layout[coords.a];
             var keyB = layout[coords.b];
             if (skipForMetering.Contains(keyA) || skipForMetering.Contains(keyB))
                 continue;
-            
+
             keyScores[keyA] += _data.GetAdjMetric(keyA, keyB) * coords.w;
         }
 
-        return keyScores
-            .Where(kv=>!skipForCandidates.Contains(kv.Key))
+        var sortedScores = keyScores
+            .Where(kv => !skipForCandidates.Contains(kv.Key))
             .OrderByDescending(k => k.Value)
-            .Select(k=>k.Key)
-            .Take(n)
-            .ToList();
-        
+            .Select(k => k.Key)
+            .ToArray();
+        return sortedScores;
     }
 
     public float Sample(CharArray layout, ref char[] dupes, ref char[] skips)

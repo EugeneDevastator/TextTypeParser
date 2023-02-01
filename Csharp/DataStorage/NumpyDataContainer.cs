@@ -75,6 +75,7 @@ public class NumpyDataContainer : IDataContainer
     public string Keys { get; }
     public int[] KeyCounts { get; }
     public SymbolMap SymbolMap { get; }
+    public Dictionary<char, int> CountPerKey { get; }
 
     public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys)
     {

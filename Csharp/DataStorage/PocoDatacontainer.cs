@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using MoreLinq;
 
 public class PocoDatacontainer : IDataContainer
 {
@@ -30,6 +31,9 @@ public class PocoDatacontainer : IDataContainer
 
     public string Keys => _keys;
     public int[] KeyCounts => _keyCounts;
+    public Dictionary<char,int> CountPerKey => _keyCounts
+        .Select((k, id)=> (k,id))
+        .ToDictionary(p=>_keys[p.id],p=> p.k);
 
     public string LowerLetterLanguage => _lowerLetterLanguage;
 

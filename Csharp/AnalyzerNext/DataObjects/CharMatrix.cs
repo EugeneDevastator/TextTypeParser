@@ -4,16 +4,16 @@ using Microsoft.VisualBasic.CompilerServices;
 
 namespace AnalyzerNext;
 
-public class CharArray
+public class CharMatrix
 {
     private char[,] _data= new char[0, 0];
     public  char[,] Data => _data;
-    public CharArray(string[] stringData)
+    public CharMatrix(string[] stringData)
     {
         ConvertFromStringList(stringData);
     }
 
-    public CharArray(CharArray other)
+    public CharMatrix(CharMatrix other)
     {
         _data = new char[other.Xdim, other.Ydim];
         foreach (var (x,y) in CoordsIterator)
@@ -22,6 +22,15 @@ public class CharArray
         }
     }
 
+    public void CopyDataFrom(CharMatrix other)
+    {
+        _data = new char[other.Xdim, other.Ydim];
+        foreach (var (x,y) in CoordsIterator)
+        {
+            _data[x, y] = other[x, y];
+        }
+    }
+    
     public char this[int x, int y]
     {
         get => _data[x, y];

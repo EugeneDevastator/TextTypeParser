@@ -1,76 +1,100 @@
-﻿using Combinatorics.Collections;
+﻿using System.Collections;
+using Combinatorics.Collections;
 
 namespace AnalyzerUtils;
 
-public class Combine<T>
+public class Combine<T> : IEnumerable<IReadOnlyList<T>>
 {
     private IEnumerable<T> _elements;
-    private bool _allowDuplicates = false;
-    private int _minPlaces = -1;
-    private int _maxPlaces = -1;
+    private bool _needDuplicateOrder = false;
+    private int _places = -1;
     private bool _orderMatters = false;
+    private bool _cloneEntries = false;
 
     public Combine(IEnumerable<T> elements)
     {
         _elements = elements;
     }
+
+    public Combine<T> PlacesCount(int places)
+    {
+        _places = places;
+        return this;
+    }
+
+    public Combine<T> DuplicateOrderIrrelevant()
+    {
+        _needDuplicateOrder = false;
+        return this;
+    }
+
+    public Combine<T> CloneEntries()
+    {
+        _cloneEntries = true;
+        return this;
+    }
     
-    public Combine<T> WithPlaces(int places)
+    public Combine<T> DuplicateOrderMatters()
     {
-        _maxPlaces = places;
-        _minPlaces = places;
+        _needDuplicateOrder = true;
         return this;
     }
 
-    public Combine<T> WithPlaces(int minPlaces, int maxPlaces)
+    public Combine<T> OrderMatters()
     {
-        _maxPlaces = maxPlaces;
-        _minPlaces = minPlaces;
+        _orderMatters = true;
         return this;
     }
 
-    public Combine<T> AllowDuplicates(bool allow)
+    public Combine<T> OrderIrrelevant()
     {
-        _allowDuplicates = allow;
-        return this;
-    }
-
-    public Combine<T> OrderMatters(bool orderMatters)
-    {
-        _orderMatters = orderMatters;
+        _orderMatters = false;
         return this;
     }
 
     public IEnumerable<IReadOnlyList<T>> Make()
     {
-        if (_minPlaces < 0) // consider places == element count
+        if (_places < 0) // consider places == element count
         {
             if (!_orderMatters)
                 return new List<IReadOnlyList<T>>() { _elements.ToList() };
-            if (_allowDuplicates)
+            if (_needDuplicateOrder)
                 return new Permutations<T>(_elements, GenerateOption.WithRepetition);
             return new Permutations<T>(_elements, GenerateOption.WithoutRepetition);
         }
 
-        if (_minPlaces == _maxPlaces)
+        else // there are places provided.
         {
             if (_orderMatters)
             {
-                if (_allowDuplicates)
+                if (_needDuplicateOrder)
                 {
-                    return new Variations<T>(_elements, _minPlaces, GenerateOption.WithRepetition);
+                    return new Variations<T>(_elements, _places, GenerateOption.WithRepetition);
                 }
-                return new Variations<T>(_elements, _minPlaces,GenerateOption.WithoutRepetition);
+
+                return new Variations<T>(_elements.Distinct(), _places, GenerateOption.WithoutRepetition);
             }
-            
-            // order doesnt matter
-            if (_allowDuplicates)
+            else // order doesnt matter
             {
-                return new Combinations<T>(_elements, _minPlaces, GenerateOption.WithRepetition);
+                if (_needDuplicateOrder)
+                {
+                    return new Combinations<T>(_elements, _places, GenerateOption.WithRepetition);
+                }
+                return new Combinations<T>(_elements, _places, GenerateOption.WithoutRepetition);
             }
-            return new Combinations<T>(_elements, _minPlaces,GenerateOption.WithoutRepetition);
         }
+
         //TODO placing subsets into amount of places
         return null;
+    }
+
+    public IEnumerator<IReadOnlyList<T>> GetEnumerator()
+    {
+        return Make().GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
     }
 }

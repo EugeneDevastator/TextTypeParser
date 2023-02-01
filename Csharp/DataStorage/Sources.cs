@@ -5,7 +5,7 @@
         ParsingPath = "d:\\1\\toparse_rider",
         DataPath = "d:\\1\\PARSED_EN",
         Language = LanguageMaps.LettersLowerEn,
-        Flags = 0 | WorderFlags.SimpleText
+        Flags = 0 | WorderFlags.IntelliSense | WorderFlags.SimpleText
     };
 
     public static ParseParams Cyrilic = new ParseParams()

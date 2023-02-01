@@ -2,5 +2,5 @@
 
 public interface ISampler
 {
-    public float Sample(CharArray layout);
+    public float Sample(CharMatrix layout);
 }

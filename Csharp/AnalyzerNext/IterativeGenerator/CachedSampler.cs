@@ -25,7 +25,7 @@ public class CachedSampler
         }
     }
 
-    public void CacheLayouttoFill(CharArray emptyPlacesTemplate, char placeSymbol)
+    public void CacheLayouttoFill(CharMatrix emptyPlacesTemplate, char placeSymbol)
     {
         foreach (var (x, y) in emptyPlacesTemplate.CoordsIterator)
         {
@@ -40,16 +40,33 @@ public class CachedSampler
             }
         }
     }
-
-    public List<char> GetNWorstKeys(int n, CharArray layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter)
+    public void CacheLayoutNoSkipsOnly(CharMatrix unfilledTemplate, char skipSymbol)
     {
-        var sortedScores = GetKEysSortedByBadness(layout, dontList, dontMeter);
+        foreach (var (x, y) in unfilledTemplate.CoordsIterator)
+        {
+            if (!_weights.WeightedTargets.ContainsKey((x, y)))
+                continue;
+
+            if (unfilledTemplate[x, y] != skipSymbol)
+            {
+                _meteringCoordsCached.AddRange(
+                    _weights.WeightedTargets[(x, y)]
+                        .Select(target => (new KeyCoord(x, y), target, target.w)));
+            }
+        }
+    }
+    public List<char> GetNWorstKeys(int n, CharMatrix layout, 
+        IEnumerable<char> dontList, 
+        IEnumerable<char> dontMeter,
+        IEnumerable<char> whiteList)
+    {
+        var sortedScores = GetKeysSortedByBadness(layout, dontList, dontMeter, whiteList);
         return sortedScores[..n].ToList();
 
     }
-    public List<char> GetNWorstAndBestKeys(int n, CharArray layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter)
+    public List<char> GetNWorstAndBestKeys(int n, CharMatrix layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter, IEnumerable<char> whitelist)
     {
-        var sortedScores = GetKEysSortedByBadness(layout, dontList, dontMeter);
+        var sortedScores = GetKeysSortedByBadness(layout, dontList, dontMeter, whitelist);
         var top = sortedScores[..n];
         var bot = sortedScores[^n..];
         return
@@ -57,7 +74,8 @@ public class CachedSampler
         //.Take(n)
         //.ToList();
     }
-    private char[] GetKEysSortedByBadness(CharArray layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter)
+    private char[] GetKeysSortedByBadness(CharMatrix layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter,
+        IEnumerable<char> whiteList)
     {
         var nonTypable = new List<char> { Constants.EMPTY, Constants.IGNORE, Constants.TOFILL };
         var keysUsed = layout.Flatten;
@@ -71,7 +89,7 @@ public class CachedSampler
         {
             var keyA = layout[coords.a];
             var keyB = layout[coords.b];
-            if (skipForMetering.Contains(keyA) || skipForMetering.Contains(keyB))
+            if (!whiteList.Contains(keyA) || !whiteList.Contains(keyB))
                 continue;
 
             keyScores[keyA] += _data.GetAdjMetric(keyA, keyB) * coords.w;
@@ -85,7 +103,7 @@ public class CachedSampler
         return sortedScores;
     }
 
-    public float Sample(CharArray layout, ref char[] dupes, ref char[] skips)
+    public float Sample(CharMatrix layout, ref char[] allowed)
     {
         float sum = 0;
         foreach (var coords in _meteringCoordsCached)
@@ -93,16 +111,14 @@ public class CachedSampler
             var keyA = layout[coords.a];
             var keyB = layout[coords.b];
 
-            if (skips.Any(k => k == keyA || k == keyB))
-                continue;
-
-            sum += _data.GetAdjMetric(keyA, keyB) * coords.w;
+            if(allowed.Contains(keyA) && allowed.Contains(keyB))
+                sum += _data.GetAdjMetric(keyA, keyB) * coords.w;
         }
 
         return sum;
     }
 
-    public float SampleAll(CharArray layout, char[] allowed)
+    public float SampleAll(CharMatrix layout, ref char[] allowed)
     {
         float sum = 0;
         foreach (var coords in _meteringCoordsAll)
@@ -110,7 +126,7 @@ public class CachedSampler
             var keyA = layout[coords.a];
             var keyB = layout[coords.b];
 
-            if (allowed.Any(k => k == keyA) && allowed.Any(k => k == keyB))
+            if(allowed.Contains(keyA) && allowed.Contains(keyB))
                 sum += _data.GetAdjMetric(keyA, keyB) * coords.w;
         }
 

@@ -41,7 +41,7 @@ public class LayoutPrinter
         Console.WriteLine("COPIED TO CLIPBOARD");
     }
 
-    public void PrintRaw(CharArray layout) => PrintRaw(layout.Data);
+    public void PrintRaw(CharMatrix layout) => PrintRaw(layout.Data);
     public void PrintRaw(char[,] layout)
     {
         var h = layout.GetLength(1);
@@ -68,6 +68,6 @@ public class LayoutPrinter
         Console.WriteLine("COPIED TO CLIPBOARD");
     }
 
-    public void PrintForTable(CharArray bestLayout) => PrintForTable(bestLayout.Data);
+    public void PrintForTable(CharMatrix bestLayout) => PrintForTable(bestLayout.Data);
 
 }

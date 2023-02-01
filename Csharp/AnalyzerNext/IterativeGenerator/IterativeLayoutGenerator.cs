@@ -1,4 +1,5 @@
-﻿using AnalyzerUtils;
+﻿using System.Diagnostics;
+using AnalyzerUtils;
 using Combinatorics.Collections;
 using MoreLinq.Extensions;
 using static AnalyzerUtils.Constants;
@@ -7,13 +8,13 @@ namespace AnalyzerNext;
 
 public class IterativeLayoutGenerator
 {
-    private CharArray _initialLayout;
-    private CharArray _toFillLayout;
+    private CharMatrix _initialLayout;
+    private CharMatrix _toFillLayout;
     private LayoutConfig _config;
     private LayoutWeights _weights;
     private IDataContainer _data;
     private List<KeyCoord> fillCoords = new List<KeyCoord>();
-    private CharArray _weightingStandardLayout;
+    private CharMatrix _weightingStandardLayout;
     private char[] _nonCharacters;
     private char[] _skip;
     private string[] _lines;
@@ -26,9 +27,9 @@ public class IterativeLayoutGenerator
         _weights = weights;
         _config = config;
         _lines = File.ReadAllLines(layoutFileName);
-        _initialLayout = new CharArray(_lines[..3]);
-        _toFillLayout = new CharArray(_lines[4..7]);
-        _weightingStandardLayout = new CharArray(_initialLayout);
+        _initialLayout = new CharMatrix(_lines[..3]);
+        _toFillLayout = new CharMatrix(_lines[4..7]);
+        _weightingStandardLayout = new CharMatrix(_initialLayout);
         
         _nonCharacters = _config.SkippedKeys.ToCharArray();
         _weightingStandardLayout.ReplaceAllWithOne(_nonCharacters,IGNORE);
@@ -40,9 +41,9 @@ public class IterativeLayoutGenerator
         var printer = new LayoutPrinter(_data.SymbolMap);
         var sampler = new CachedSampler(_weights, _data);
         
-        var worst = sampler.GetNWorstKeys(6, _weightingStandardLayout, "arstneio", "_*^").ToArray();
+        var worst = sampler.GetNWorstKeys(6, _weightingStandardLayout, "arstneio", "_*^", _data.SymbolMap.LettersLower).ToArray();
         Console.WriteLine(worst);
-        _toFillLayout = new CharArray(_weightingStandardLayout);
+        _toFillLayout = new CharMatrix(_weightingStandardLayout);
         _toFillLayout.ReplaceAllWithOne(worst,TOFILL);
         _toFillLayout.ReplaceAllWithOne(EMPTY,TOFILL);
         Console.WriteLine(_toFillLayout);
@@ -77,14 +78,16 @@ public class IterativeLayoutGenerator
         }
 
         var perms = new Permutations<char>(keysToInsert);
-
-        var bestLayout = new CharArray(_initialLayout);
-        var scanLayout = new CharArray(_initialLayout);
+        Console.WriteLine("Perm Count "+ perms.Count);
+        
+        var bestLayout = new CharMatrix(_initialLayout);
+        var scanLayout = new CharMatrix(_initialLayout);
 
         var skipsAndDupes = allDupes.Concat(_skip).ToArray();
-        var minScore = sampler.Sample(_toFillLayout, ref allDupes, ref skipsAndDupes);
-        
-        Console.WriteLine($"current score:{sampler.SampleAll(_initialLayout, _data.SymbolMap.LettersLower.ToCharArray())}");
+        var minScore = sampler.Sample(_toFillLayout, ref skipsAndDupes);
+
+        var lowerLetters = _data.SymbolMap.LettersLower.ToCharArray();
+        Console.WriteLine($"current score:{sampler.SampleAll(_initialLayout, ref lowerLetters )}");
         var allowedToBeWeighted = _data.SymbolMap.LettersLower.Where(c=>!skipsAndDupes.Contains(c)).ToArray();
         
         foreach (var perm in perms)
@@ -96,12 +99,13 @@ public class IterativeLayoutGenerator
             }
 
             //var score = sampler.Sample(scanLayout, ref allDupes, ref skipsAndDupes);
-            var score = sampler.SampleAll( scanLayout, allowedToBeWeighted);
+            var score = sampler.Sample(scanLayout, ref skipsAndDupes);
 
             if (score < minScore)
             {
-                bestLayout = new CharArray(scanLayout);
+                bestLayout = new CharMatrix(scanLayout);
                 minScore = score;
+                Console.WriteLine(minScore);
             }
         }
         
@@ -112,7 +116,7 @@ public class IterativeLayoutGenerator
         }
         
         printer.PrintForTable(bestLayout);
-        Console.WriteLine($"new score:{sampler.SampleAll(bestLayout, _data.SymbolMap.LettersLower.ToCharArray())}");
+        Console.WriteLine($"new score:{sampler.SampleAll(bestLayout, ref lowerLetters)}");
         
         //File.WriteAllText();
         var l = bestLayout.ToStringList();

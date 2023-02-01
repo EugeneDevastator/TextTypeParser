@@ -4,14 +4,14 @@ namespace AnalyzerNext;
 
 public class PermutationLookuper
 {
-    public (CharArray l, float score) FindLayoutByPermutation(
+    public (CharMatrix l, float score) FindLayoutByPermutation(
         ISampler sampler,
-        CharArray baseLayout, 
+        CharMatrix baseLayout, 
         char[] charsToPlace,
         IEnumerable<List<KeyCoord>> permutations)
     {
-        var bestLayout = new CharArray(baseLayout);
-        var scanLayout = new CharArray(baseLayout);
+        var bestLayout = new CharMatrix(baseLayout);
+        var scanLayout = new CharMatrix(baseLayout);
         var minScore = sampler.Sample(baseLayout);
         Console.WriteLine($"current score:{minScore}");
 
@@ -27,7 +27,7 @@ public class PermutationLookuper
 
             if (score < minScore)
             {
-                bestLayout = new CharArray(scanLayout);
+                bestLayout = new CharMatrix(scanLayout);
                 minScore = score;
             }
         }

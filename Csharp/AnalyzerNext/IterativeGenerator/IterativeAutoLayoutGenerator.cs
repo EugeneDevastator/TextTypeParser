@@ -41,7 +41,9 @@ public class IterativeAutoLayoutGenerator
         _toFillLayout.ReplaceAllWithOne(EMPTY,TOFILL);
         _toFillLayout.ReplaceAllWithOne(_nonCharacters,IGNORE);
 
-        var maxLimit = 10;
+        sampler.ListOrderedWeights(_initialLayout,_data.SymbolMap.LettersLower.SubtractElementWise("uc"));
+        //return;
+        var maxLimit = 11;
         var missing = _data.SymbolMap.LettersLower.SubtractElementWise(_toFillLayout.Flatten);
         var worst = sampler.GetNWorstKeys(maxLimit, _initialLayout, "arstneio", "_*^", _data.SymbolMap.LettersLower).ToArray();
         var toplace = missing.Concat(worst).ToList();
@@ -91,24 +93,54 @@ public class IterativeAutoLayoutGenerator
             var perms = new Permutations<char>(dropSample);
             Console.WriteLine("Perm Count " + perms.Count);
 
-            foreach (var perm in perms)
+            object Locker = "";
+
+            perms.AsParallel().Select(p =>
             {
-                //fill layout
-                foreach (var c in perm.Zip(fillCoords))
+                var sl = new CharMatrix(_initialLayout);
+                foreach (var c in p.Zip(fillCoords))
                 {
-                    scanLayout[c.Second.x, c.Second.y] = c.First;
+                    sl[c.Second.x, c.Second.y] = c.First;
                 }
 
-                //var score = sampler.Sample(scanLayout, ref allDupes, ref skipsAndDupes);
-                var score = sampler.Sample(scanLayout, ref samplingWhiteList);
-
-                if (score < minScore)
+                var score = sampler.Sample(sl, ref samplingWhiteList);
+                return (sl, score);
+            })
+                .ForAll(r =>
+            {
+                if (r.score < minScore)
                 {
-                    bestLayout.CopyDataFrom(scanLayout);
-                    minScore = score;
-                    Console.WriteLine(minScore);
+                    lock (Locker)
+                    {
+                        if (r.score < minScore)
+                        {
+                            minScore = r.score;
+                            bestLayout.CopyDataFrom(r.sl);
+                            Console.WriteLine(minScore);
+                        }
+                    }
                 }
-            }
+            });
+
+            //foreach (var perm in perms.AsParallel())
+            //{
+            //    
+            //    //fill layout
+            //    foreach (var c in perm.Zip(fillCoords))
+            //    {
+            //        scanLayout[c.Second.x, c.Second.y] = c.First;
+            //    }
+//
+            //    //var score = sampler.Sample(scanLayout, ref allDupes, ref skipsAndDupes);
+            //    var score = sampler.Sample(scanLayout, ref samplingWhiteList);
+//
+            //    if (score < minScore)
+            //    {
+            //        bestLayout.CopyDataFrom(scanLayout);
+            //        minScore = score;
+            //        Console.WriteLine(minScore);
+            //    }
+            //}
         }
         
         foreach (var c in bestLayout.CoordsIterator)

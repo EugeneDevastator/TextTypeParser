@@ -7,5 +7,5 @@ using System;
 //parser.Parse();
 
 var data = new PocoDatacontainer();
-var parser = new ParserNext(data, Sources.RiderEN);
+var parser = new EnumerableParser(data, Sources.RiderEN);
 parser.Parse();

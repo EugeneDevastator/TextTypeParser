@@ -104,6 +104,7 @@ public class Sampler
         return s.ToString();
     }
 
+    
     public float GetWeightOfPlacedKey(byte x, byte y, char key, ref char[,] filledLayout)
     {
         return _data.GetAdjMetric(filledLayout[x, y], key);

@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Security.Principal;
+using System.Text;
+using MoreLinq;
 using NumSharp;
 
 public class ParserNext
@@ -42,8 +44,9 @@ public class ParserNext
         }
     }
 
-    private bool IsValidVis(char v) => _symbols.SignsVisual.Contains(v);
+    private bool IsValidVis(char v) => _symbols.AllVisualSymbols.Contains(v);
     private int IndexOfVis(char v) => _symbols.VisToIndex(v);
+
     
     public void Parse()
     {
@@ -65,19 +68,6 @@ public class ParserNext
         //TODO delegate to datasource
         _data.Fill(keyCounts,adjZero,adjOne,_symbols.KeyboardKeys, _symbols.LanguageLower);
         _data.SaveToFolder(_parseParams.DataPath);
-        //  for (int i = 0; i < typable.Length; i++)
-        //  {
-        //      for (int k = 0; k < typable.Length; k++)
-        //      {
-        //          adjacencyZero[i, k] = adjFloatZero[i, k];
-        //          adjacencyOne[i, k] = adjFloatOne[i, k];
-        //      }
-        //  }
-//
-        //  np.save(Path.Combine(Constants.rootPath, Constants.AdjZeroDatafile), adjacencyZero);
-        //  np.save(Path.Combine(Constants.rootPath, Constants.AdjOneDatafile), adjacencyOne);
-        //  np.save(Path.Combine(Constants.rootPath, Constants.CountsDatafile), np.asarray(typableCounts));
-        //  File.WriteAllText(Path.Combine(Constants.rootPath, Constants.KeySetData), typable);
     }
 
     private void ExtractDataAllCharsFirstNOfWord(string content, int firstn)
@@ -142,7 +132,7 @@ public class ParserNext
             {
                 
                 var last = word[^1];
-                if (_symbols.SignsVisual.Contains(last))
+                if (_symbols.AllVisualSymbols.Contains(last))
                 {
                     AddCountData(_symbols.VisToIndex(word[^1]));
                     if (sampleOut.Length < 3000)
@@ -155,7 +145,7 @@ public class ParserNext
                 ResetWord();
                 foreach (var cr in seq)
                 {
-                    if (_symbols.SignsVisual.Contains(cr))
+                    if (_symbols.AllVisualSymbols.Contains(cr))
                     {
                         keyOfVisual = _symbols.VisualToKey(cr);
                         kc = kb;
@@ -277,7 +267,7 @@ public class ParserNext
                     Console.WriteLine(pos / totalSize);
                 //not really interested in uppercasing.
 
-                if (_symbols.SignsVisual.Contains(cr))
+                if (_symbols.AllVisualSymbols.Contains(cr))
                 {
                     key = _symbols.VisualToKey(cr);
                     kc = kb;

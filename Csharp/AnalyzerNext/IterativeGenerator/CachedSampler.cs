@@ -74,6 +74,28 @@ public class CachedSampler
         //.Take(n)
         //.ToList();
     }
+    
+    public void ListOrderedWeights(CharMatrix layout, IEnumerable<char> allowed)
+    {
+        float sum = 0;
+        Dictionary<(char c, char c2), float> pairWeights = new();
+        foreach (var coords in _meteringCoordsAll)
+        {
+            var keyA = layout[coords.a];
+            var keyB = layout[coords.b];
+
+            if (allowed.Contains(keyA) && allowed.Contains(keyB))
+            {
+                pairWeights.Add((keyA, keyB), _data.GetAdjMetric(keyA, keyB) * coords.w);
+            }
+        }
+
+        foreach (var kv in pairWeights.OrderByDescending(kv=>kv.Value))
+        {
+            Console.WriteLine($"{kv.Key.c},{kv.Key.c2} => {kv.Value}");
+        }
+    }
+    
     private char[] GetKeysSortedByBadness(CharMatrix layout, IEnumerable<char> dontList, IEnumerable<char> dontMeter,
         IEnumerable<char> whiteList)
     {

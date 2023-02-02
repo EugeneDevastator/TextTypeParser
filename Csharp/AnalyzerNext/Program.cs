@@ -15,10 +15,10 @@ var w = new LayoutWeights();
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var source = Sources.RiderEN;
+var source = Sources.RiderEN_Simple;
 var layout = new LayoutConfig();
 var data = new PocoDatacontainer();
-data.LoadFromFolder(source.DataPath, 0.5f);
+data.LoadFromFolder(source.DataPath, 0.2f);
 var iterPath = "d:\\1\\Iterator\\iterData.txt";
 
 var all = data.SymbolMap.LettersLower.SubtractElementWise("arstneiozjqx");

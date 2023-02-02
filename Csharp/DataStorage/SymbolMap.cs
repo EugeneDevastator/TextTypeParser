@@ -10,10 +10,10 @@ public class SymbolMap
 {
     public Dictionary<char, byte> _visualToUniqueIndex = new Dictionary<char, byte>();
     private Dictionary<char, char> _visualToKey = new Dictionary<char, char>();
-    private string _keyForSignString;
+    private string _keysOfVisuals;
     
     public string KeyboardKeys { get; private set; }
-    public string SignsVisual { get; private set; }
+    public string AllVisualSymbols { get; private set; }
     public string LettersVisual  { get; private set; }
 
     public string LanguageLower => LettersLower;
@@ -54,10 +54,10 @@ public class SymbolMap
         LettersLower = lowerLetters;
         LettersUpper = LettersLower.ToUpper();
         LettersVisual = LettersLower + LettersUpper;
-        SignsVisual = LettersLower + LettersLower.ToUpper() + _symbolsVisual;
-        _keyForSignString = LettersLower + LettersLower + _symbolsKeys;
+        AllVisualSymbols = LettersLower + LettersLower.ToUpper() + _symbolsVisual;
+        _keysOfVisuals = LettersLower + LettersLower + _symbolsKeys;
         
-        KeyboardKeys = new string(_keyForSignString.Distinct().ToArray());
+        KeyboardKeys = new string(_keysOfVisuals.Distinct().ToArray());
         _keyNames = new string[KeyboardKeys.Length];
         for (int i = 0; i < KeyboardKeys.Length; i++)
         {
@@ -65,10 +65,10 @@ public class SymbolMap
             _keyIndices[KeyboardKeys[i]] = (byte)i;
         }
         
-        for (var i = 0; i < SignsVisual.Length; i++)
+        for (var i = 0; i < AllVisualSymbols.Length; i++)
         {
-            _visualToKey.Add(SignsVisual[i], _keyForSignString[i]);
-            _visualToUniqueIndex.Add(SignsVisual[i],_keyIndices[_keyForSignString[i]]);
+            _visualToKey.Add(AllVisualSymbols[i], _keysOfVisuals[i]);
+            _visualToUniqueIndex.Add(AllVisualSymbols[i],_keyIndices[_keysOfVisuals[i]]);
         }
     }
 

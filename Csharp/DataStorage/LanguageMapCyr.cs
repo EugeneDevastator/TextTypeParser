@@ -10,4 +10,7 @@ public static class LanguageMaps
 {
     public const string LettersLowerRu = "йцукенгшщзхъфывапролджэячсмитьбю";
     public const string LettersLowerEn = "abcdefghijklmnopqrstuvwxyz";
+    
+    public const string RuAltsLower  = "еишьеишь";
+    public const string RuAltsVisual = "ёйщъЁЙЩЪ";
 }

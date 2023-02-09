@@ -17,9 +17,9 @@ public class EnumerableParser
     {
         _parseParams = parseParams;
         _data = data;
-        _symbols = new SymbolMap(parseParams.Language);
-        keys = _symbols.KeyboardKeys;
-        Console.WriteLine(_symbols.KeyboardKeys.ToString());
+        _symbols = new SymbolMap(parseParams.Languages);
+        keys = _symbols.DistinctLowerKeys;
+        Console.WriteLine(_symbols.DistinctLowerKeys.ToString());
 
         keyCounts = new int[keys.Length];
         adjZero = new int[keys.Length, keys.Length];
@@ -37,15 +37,19 @@ public class EnumerableParser
         FileInfo[] Files = d.GetFiles("*"); //Getting Text files
         var text = GetAllData(Files);
 
-        GetWordsInText(text, _symbols.LettersVisual, _symbols.AllVisualSymbols).Take(20).ForEach(w=>Console.WriteLine(w));
-        var words = GetWordsInText(text, _symbols.LettersVisual, _symbols.AllVisualSymbols).AsParallel();
+        //debug
+        GetWordsInText(text, _symbols.AllVisualSymbols, _symbols.AllVisualSymbols)
+            .Take(20)
+            .ForEach(w=>Console.WriteLine(w));
+        
+        var words = GetWordsInText(text, _symbols.AllVisualSymbols, _symbols.AllVisualSymbols).AsParallel();
 
         if (_parseParams.Flags.HasFlag(WorderFlags.SimpleText))
             words.ForAll(w=> GetAdjacencies(w).ForEach(WriteAdjacency));
 
         if (_parseParams.Flags.HasFlag(WorderFlags.IntelliSense))
             words.ForAll(w =>
-                GetIntellisenseWord(w, _symbols.LettersUpper)
+                GetIntellisenseWord(w, _symbols.AllProjectedLowerKeys.ToUpper().Distinct())
                     .Apply(GetAdjacencies)
                     .ForEach(WriteAdjacency));
                 
@@ -58,7 +62,7 @@ public class EnumerableParser
     private void WriteDataFiles()
     {
         //TODO delegate to datasource
-        _data.Fill(keyCounts,adjZero,adjOne,_symbols.KeyboardKeys, _symbols.LanguageLower);
+        _data.Fill(keyCounts,adjZero,adjOne, _symbols);
         _data.SaveToFolder(_parseParams.DataPath);
     }
     private string GetAllData(FileInfo[] Files)
@@ -88,8 +92,10 @@ public class EnumerableParser
         {
             if (!lettersOfWord.Contains(ch))
             {
-                yield return word.ToString();
+                if (word.Length > 0)
+                    yield return word.ToString();
                 word.Clear();
+                
                 if (allValidSymbols.Contains(ch))
                 {
                     yield return ch.ToString();

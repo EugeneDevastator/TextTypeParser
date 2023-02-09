@@ -1,4 +1,7 @@
 ﻿using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
+using System.Text.Unicode;
 using MoreLinq;
 
 public class PocoDatacontainer : IDataContainer
@@ -7,7 +10,7 @@ public class PocoDatacontainer : IDataContainer
     public const string AdjZeroDatafile = "AdjZero.csv";
     public const string CountsDatafile = "counts.csv";
     public const string KeySetData = "keyset.txt";
-    public const string LanguageData = "languageLow.txt";
+    public const string LanguageData = "language.json";
     
     private int[,] _adjZeroDir; // y follows x
     private int[,] _adjOneDir;
@@ -22,11 +25,14 @@ public class PocoDatacontainer : IDataContainer
     private Dictionary<char, int> _keysToId=new();
     private string _lowerLetterLanguage;
     private SymbolMap _symbolMap;
+    
+    TextEncoderSettings encoderSettings = new TextEncoderSettings();
 
     public PocoDatacontainer()
     {
         _exporter = new CSVExporter();
-
+        encoderSettings.AllowRange(UnicodeRanges.Cyrillic);
+        encoderSettings.AllowRange(UnicodeRanges.BasicLatin);
     }
 
     public string Keys => _keys;
@@ -46,13 +52,12 @@ public class PocoDatacontainer : IDataContainer
 
     public int GetKeyCount(char k) => _keyCounts[_keysToId[k]];
   
-    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys, string lowerLetterLanguage)
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, SymbolMap symbolMap)
     {
-        _lowerLetterLanguage = lowerLetterLanguage;
+        _symbolMap = symbolMap;
         _keyCounts = keyCounts;
         _adjZeroDir = adjZeroDir;
         _adjOneDir = adjOneDir;
-        _keys = keys;
     }
 
     public void SaveToFolder(string folder)
@@ -60,10 +65,14 @@ public class PocoDatacontainer : IDataContainer
         _exporter.WriteVector(Path.Combine(folder,CountsDatafile), KeyCounts);
         _exporter.WriteData(Path.Combine(folder,AdjZeroDatafile), _adjZeroDir);
         _exporter.WriteData(Path.Combine(folder,AdjOneDatafile), _adjOneDir);
-        File.WriteAllText(Path.Combine(folder,KeySetData),Keys);
-        File.WriteAllText(Path.Combine(folder,LanguageData),LowerLetterLanguage);
+        File.WriteAllText(Path.Combine(folder,KeySetData),_symbolMap.DistinctLowerKeys);
 
-        for (var i = 0; i < _keys.Length; i++)
+        var language = new Language() { Visuals = _symbolMap.AllVisualSymbols, Keys = _symbolMap.AllProjectedLowerKeys };
+        var serialized = JsonSerializer.Serialize(language);
+        language.Write(Path.Combine(folder,LanguageData));
+
+        _keys = _symbolMap.DistinctLowerKeys;
+        for (var i = 0; i < _symbolMap.DistinctLowerKeys.Length; i++)
         {
             _keysToId.Add(_keys[i],i);
         }
@@ -85,12 +94,14 @@ public class PocoDatacontainer : IDataContainer
         _adjZeroDir = _exporter.ReadData<int>(Path.Combine(folder,AdjZeroDatafile));
         _adjOneDir = _exporter.ReadData<int>(Path.Combine(folder,AdjOneDatafile));
         _keys = File.ReadAllText(Path.Combine(folder,KeySetData));
-        _lowerLetterLanguage = File.ReadAllText(Path.Combine(folder,LanguageData));
+        var dataLanguage = Language.ReadFromFile(Path.Combine(folder,LanguageData));
+        _symbolMap = new SymbolMap(new [] {dataLanguage});
         
-        _keyCount = KeyCounts.Length;
+        _keyCount = _keyCounts.Length;
+        
         GenerateSecondOrderData(adjOneMul);
         
-        _symbolMap = new SymbolMap(_lowerLetterLanguage);
+
     }
 
     private void GenerateSecondOrderData(float adjOneMul)

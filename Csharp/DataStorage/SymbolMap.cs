@@ -1,33 +1,17 @@
-﻿/// <summary>
-/// Letter - raw semantic for letters of alphabet
-/// Symbol - special character (non letter)
-/// Sign - letter or symbol or space etc.
-/// Key - meaning keyboard key in its unshifted variation
-/// Visual - sign that we see in text (shifted + unshifted)
-/// </summary>
-
-public class SymbolMap
+﻿public class SymbolMap
 {
     public Dictionary<char, byte> _visualToUniqueIndex = new Dictionary<char, byte>();
     private Dictionary<char, char> _visualToKey = new Dictionary<char, char>();
     private string _keysOfVisuals;
     
-    public string KeyboardKeys { get; private set; }
+    public string DistinctLowerKeys { get; private set; }
     public string AllVisualSymbols { get; private set; }
-    public string LettersVisual  { get; private set; }
-
-    public string LanguageLower => LettersLower;
-    
-    public string LettersUpper { get; }
-    public string LettersLower { get; }
-    
-    private string _symbolsVisual = " `~9(0):;" + '\"' + "\'" + ",<.>/?-_=+[{]}" + '\\' + "|";
-    private string _symbolsKeys =   " ``9900;;" + "\'" + "\'" + ",,..//--==[[]]" + '\\' + '\\'; //non-shifted keys.
+    public string AllProjectedLowerKeys => _keysOfVisuals;
 
     public IReadOnlyDictionary<char, byte> KeyIndices => _keyIndices;
     private Dictionary<char, byte> _keyIndices = new Dictionary<char, byte>();
     
-    private Dictionary<char, string> charNames = new Dictionary<char, string>()
+    private Dictionary<char, string> visualNames = new Dictionary<char, string>()
     {
         { ' ', "spc" },
         { '.', "dot" },
@@ -49,20 +33,22 @@ public class SymbolMap
     /// </summary>
     public string WordSeparators = " ;.,[]{}()-+=/*\"?<>`";
 
-    public SymbolMap(string lowerLetters)
+    public SymbolMap(IEnumerable<Language> languages)
     {
-        LettersLower = lowerLetters;
-        LettersUpper = LettersLower.ToUpper();
-        LettersVisual = LettersLower + LettersUpper;
-        AllVisualSymbols = LettersLower + LettersLower.ToUpper() + _symbolsVisual;
-        _keysOfVisuals = LettersLower + LettersLower + _symbolsKeys;
-        
-        KeyboardKeys = new string(_keysOfVisuals.Distinct().ToArray());
-        _keyNames = new string[KeyboardKeys.Length];
-        for (int i = 0; i < KeyboardKeys.Length; i++)
+        AllVisualSymbols = "";
+        _keysOfVisuals = "";
+        foreach (var l in languages)
         {
-            _keyNames[i] = charNames.ContainsKey(KeyboardKeys[i]) ? charNames[KeyboardKeys[i]] : KeyboardKeys[i].ToString();
-            _keyIndices[KeyboardKeys[i]] = (byte)i;
+            AllVisualSymbols += l.Visuals;
+            _keysOfVisuals += l.Keys;
+        }
+        
+        DistinctLowerKeys = new string(_keysOfVisuals.Distinct().ToArray());
+        _keyNames = new string[DistinctLowerKeys.Length];
+        for (int i = 0; i < DistinctLowerKeys.Length; i++)
+        {
+            _keyNames[i] = visualNames.ContainsKey(DistinctLowerKeys[i]) ? visualNames[DistinctLowerKeys[i]] : DistinctLowerKeys[i].ToString();
+            _keyIndices[DistinctLowerKeys[i]] = (byte)i;
         }
         
         for (var i = 0; i < AllVisualSymbols.Length; i++)

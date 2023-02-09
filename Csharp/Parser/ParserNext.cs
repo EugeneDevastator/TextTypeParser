@@ -27,10 +27,10 @@ public class ParserNext
     {
         _parseParams = parseParams;
         _data = data;
-        _symbols = new SymbolMap(parseParams.Language);
-        keys = _symbols.KeyboardKeys;
+        _symbols = new SymbolMap(parseParams.Languages);
+        keys = _symbols.DistinctLowerKeys;
         _worder = new WordSplitter(_symbols);
-        Console.WriteLine(_symbols.KeyboardKeys.ToString());
+        Console.WriteLine(_symbols.DistinctLowerKeys.ToString());
 
         //_keyData = new KeyData(_symbolMap.UniqueKeys);
 
@@ -66,7 +66,7 @@ public class ParserNext
     private void WriteDataFiles()
     {
         //TODO delegate to datasource
-        _data.Fill(keyCounts,adjZero,adjOne,_symbols.KeyboardKeys, _symbols.LanguageLower);
+        _data.Fill(keyCounts,adjZero,adjOne, _symbols);
         _data.SaveToFolder(_parseParams.DataPath);
     }
 
@@ -78,8 +78,8 @@ public class ParserNext
         string separ = " ;.\"" + '\n';
 
         {
-            var UPPER = _symbols.LettersLower.ToUpper();
-            var Letters = _symbols.LettersLower.ToUpper() + _symbols.LettersLower;
+            var UPPER = _symbols.AllProjectedLowerKeys.ToUpper();
+            var Letters = _symbols.AllProjectedLowerKeys.ToUpper() + _symbols.AllProjectedLowerKeys;
             int pos = 0;
             char ka = '\0', kb = '\0', kc = '\0';
             byte ia = 0, ib = 0, ic = 0;

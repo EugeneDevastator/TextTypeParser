@@ -1,4 +1,7 @@
 ﻿using System.Text;
+using AnalyzerNext;
+using MoreLinq;
+using MoreLinq.Extensions;
 
 namespace AnalyzerUtils;
 
@@ -11,28 +14,53 @@ public class LayoutTransformer
         "zxcvbnm,./"
     };
 
-    public static readonly string[] QWERT_CYR = new string[]
+    public static readonly string[] QWERTY_CYR = new string[]
     {
-        "ёйцукенгшщзхъ",
+        "ёйцукенгшщзхъ\\",
         "фывапролджэ",
         "ячсмитьбю"
     };
 
     public static readonly string[] SKEWMAK = new string[]
     {
-        "_,lgwf_xkyb'\\",
-        "`urstv_hniez/",
-        "jalcd;_.pmboq"
+        "_'qvkc_cfy,\\_",
+        "`jrstb_pniex/",
+        "ualgdw_zmh.ou",
     };
+    
+   // _'',gd_d;m.\_ 
+   // szhynl_ucbtpe
+   // kfxdri_wva[jk
 
-
-    public static readonly string[] SKEWMAK_CYR = new string[]
+public static readonly string[] SKEWMAK_CYR = new string[]
     {
-        "__лбпж_ьчукэ_",
-        "шюрнтз_гсиеяф",
-        "халвд__.мыкоц"
+        "_'эбпв_вжью\\_",
+        "ыярнтд_гсиезу",
+        "лачвкш_цмфхол"
     };
 
+    public void PrintShuffeledSkewmakForStdCyr()
+    {
+        Dictionary<char, char> cyrtoen = new Dictionary<char, char>();
+        var EN = QWERTY.SelectMany(c => c.ToCharArray()).ToArray();
+        var CYR = QWERTY_CYR.SelectMany(c => c.ToCharArray()).ToArray();
+        foreach (var v in EN.Zip(CYR))
+        {
+            cyrtoen.Add(v.Second,v.First);
+        }
+
+        var lt = new CharMatrix(SKEWMAK_CYR);
+        foreach (var c in lt.CoordsIterator)
+        {
+            if (cyrtoen.ContainsKey(lt[c]))
+            {
+                lt[c] = cyrtoen[lt[c]];
+            }
+        }
+
+        Console.WriteLine(lt);
+    }
+    
     public void GetQwertyForSkewmak()
     {
         Dictionary<char, char> EnToCyr = new Dictionary<char, char>();

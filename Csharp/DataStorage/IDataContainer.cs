@@ -8,6 +8,6 @@
     int[] KeyCounts { get; }
     SymbolMap SymbolMap { get; }
     Dictionary<char, int> CountPerKey { get; }
-    void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys, string language);
+    void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, SymbolMap symbolMap);
     int GetKeyCount(char k);
 }

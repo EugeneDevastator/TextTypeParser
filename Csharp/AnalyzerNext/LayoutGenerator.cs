@@ -17,7 +17,7 @@ public class LayoutGenerator
         _layout = layout;
         _sampler = sampler;
     }
-
+    
     public void GenerateLayout()
     {
         var skipKeys = _layout.SkippedKeys;

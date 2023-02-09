@@ -1,5 +1,6 @@
 ﻿using System.Text;
 
+[Obsolete]
 public class WordSplitter
 {
     private SymbolMap _symbols;
@@ -16,7 +17,7 @@ public class WordSplitter
         StringBuilder wordBuilder = new StringBuilder();
         foreach (var cr in content)
         {
-            if (!_symbols.LettersVisual.Contains(cr))
+            if (!_symbols.AllVisualSymbols.Contains(cr))
             {
                 if (addSeparators && !Ignore.Contains(cr))
                     wordBuilder.Append(cr);
@@ -52,8 +53,8 @@ public class WordSplitter
         char lastChar = '\0';
         foreach (var cr in word)
         {
-            bool isSep = (_symbols.LettersLower.Contains(lastChar) && _symbols.LettersUpper.Contains(cr))
-                         || !_symbols.LettersVisual.Contains(cr);
+            bool isSep = false;//(_symbols.AllProjectedLowerKeys.Contains(lastChar) && _symbols.LettersUpper.Contains(cr))
+                         //|| !_symbols.AllVisualSymbols.Contains(cr);
 
             if (skipToSep && !isSep)
             {
@@ -71,7 +72,7 @@ public class WordSplitter
                 wordBuilder.Clear();
                 charN = 0;
 
-                if (_symbols.LettersUpper.Contains(cr))
+                if (_symbols.AllProjectedLowerKeys.ToUpper().Contains(cr))
                 {
                     wordBuilder.Append(cr);
                     skipToSep = false;

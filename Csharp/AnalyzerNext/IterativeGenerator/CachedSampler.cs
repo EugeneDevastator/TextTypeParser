@@ -105,7 +105,7 @@ public class CachedSampler
         var skipForMetering = nonTypable.Concat(duplicated).Concat(dontMeter);
         var skipForCandidates = nonTypable.Concat(duplicated).Concat(dontList);
 
-        var keyScores = _data.SymbolMap.LettersLower.ToDictionary(l => l, l => 0f);
+        var keyScores = _data.SymbolMap.DistinctLowerKeys.ToDictionary(l => l, l => 0f);
 
         foreach (var coords in _meteringCoordsAll)
         {

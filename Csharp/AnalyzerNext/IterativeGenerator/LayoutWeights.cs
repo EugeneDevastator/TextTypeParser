@@ -15,10 +15,10 @@ public class LayoutWeights
 
     private (float w, string pairs)[] pairSets = new[]
     {
-        (0.8f, $"rd,mc,ib"),
+        (0.8f, $"mc,ib"),
         (1f, $"rR,mM,iI,in,pP"),
-        (1.5f, $"ba,IN,nN,iN,RP,na,In"),
-        (3f, $"pY,Mc,Ib,Ia,Nb,Na,iN,pQ,QY,PY,Pd,PG,dI,ia"),
+        (1.5f, $"rd,ba,IN,nN,RP,na,In,ia"), //rd is a shitty move anyway.
+        (3f, $"pY,Mc,Ib,Ia,Nb,Na,iN,pQ,QY,PY,Pd,PG,dI"),
         (4f, $"Rc,Gp,Gd,Gm,RG,Gr,Rp,Rd"),
     };
 

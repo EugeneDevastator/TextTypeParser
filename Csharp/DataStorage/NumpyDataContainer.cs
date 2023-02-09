@@ -87,6 +87,16 @@ public class NumpyDataContainer : IDataContainer
         
     }
 
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, string keys, SymbolMap symbolMap)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Fill(int[] keyCounts, int[,] adjZeroDir, int[,] adjOneDir, SymbolMap symbolMap)
+    {
+        throw new NotImplementedException();
+    }
+
     public int GetKeyCount(char k)
     {
         throw new NotImplementedException();

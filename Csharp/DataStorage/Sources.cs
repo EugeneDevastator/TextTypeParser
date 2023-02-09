@@ -4,22 +4,23 @@
     {
         ParsingPath = "d:\\1\\toparse_rider",
         DataPath = "d:\\1\\PARSED_EN",
-        Language = LanguageMaps.LettersLowerEn,
-        Flags = 0 | WorderFlags.IntelliSense | WorderFlags.SimpleText
+        Flags = 0 | WorderFlags.IntelliSense | WorderFlags.SimpleText,
+        Languages = new []{ new LanguageEn() }
+
     };
     public static ParseParams RiderEN_Simple = new ParseParams()
     {
         ParsingPath = "d:\\1\\toparse_rider",
         DataPath = "d:\\1\\PARSED_EN_S",
-        Language = LanguageMaps.LettersLowerEn,
-        Flags = 0 | WorderFlags.SimpleText
+        Flags = 0 | WorderFlags.SimpleText,
+        Languages = new []{ new LanguageEn() }
     };
     public static ParseParams Cyrilic = new ParseParams()
     {
         ParsingPath = "d:\\1\\toparse_cyr",
         DataPath = "d:\\1\\PARSED_CYR",
-        Language = LanguageMaps.LettersLowerRu,
-        Flags = 0 | WorderFlags.SimpleText
+        Flags = 0 | WorderFlags.SimpleText,
+        Languages = new []{ new LanguageCyr() }
     };
 }
 
@@ -27,8 +28,8 @@ public class ParseParams
 {
     public string ParsingPath;
     public string DataPath;
-    public string Language;
     public WorderFlags Flags;
+    public Language[] Languages;
 }
 
 [Flags]

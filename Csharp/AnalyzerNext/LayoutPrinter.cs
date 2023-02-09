@@ -40,8 +40,8 @@ public class LayoutPrinter
 
         Console.WriteLine("COPIED TO CLIPBOARD");
     }
-
-    public void PrintRaw(CharMatrix layout) => PrintRaw(layout.Data);
+    
+public void PrintRaw(CharMatrix layout) => PrintRaw(layout.Data);
     public void PrintRaw(char[,] layout)
     {
         var h = layout.GetLength(1);

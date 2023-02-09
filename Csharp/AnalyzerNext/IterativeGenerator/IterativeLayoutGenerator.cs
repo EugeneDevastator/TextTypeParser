@@ -41,7 +41,7 @@ public class IterativeLayoutGenerator
         var printer = new LayoutPrinter(_data.SymbolMap);
         var sampler = new CachedSampler(_weights, _data);
         
-        var worst = sampler.GetNWorstKeys(6, _weightingStandardLayout, "arstneio", "_*^", _data.SymbolMap.LettersLower).ToArray();
+        var worst = sampler.GetNWorstKeys(6, _weightingStandardLayout, "arstneio", "_*^", _data.SymbolMap.AllProjectedLowerKeys).ToArray();
         Console.WriteLine(worst);
         _toFillLayout = new CharMatrix(_weightingStandardLayout);
         _toFillLayout.ReplaceAllWithOne(worst,TOFILL);
@@ -61,7 +61,7 @@ public class IterativeLayoutGenerator
         }
 
         var uniqueKeys = keysToInsert
-            .Where(k => _data.SymbolMap.LettersLower.Contains(k))
+            .Where(k => _data.SymbolMap.AllProjectedLowerKeys.Contains(k))
             .Distinct()
             .ToList();
 
@@ -86,9 +86,9 @@ public class IterativeLayoutGenerator
         var skipsAndDupes = allDupes.Concat(_skip).ToArray();
         var minScore = sampler.Sample(_toFillLayout, ref skipsAndDupes);
 
-        var lowerLetters = _data.SymbolMap.LettersLower.ToCharArray();
+        var lowerLetters = _data.SymbolMap.AllProjectedLowerKeys.ToCharArray();
         Console.WriteLine($"current score:{sampler.SampleAll(_initialLayout, ref lowerLetters )}");
-        var allowedToBeWeighted = _data.SymbolMap.LettersLower.Where(c=>!skipsAndDupes.Contains(c)).ToArray();
+        var allowedToBeWeighted = _data.SymbolMap.AllProjectedLowerKeys.Where(c=>!skipsAndDupes.Contains(c)).ToArray();
         
         foreach (var perm in perms)
         {

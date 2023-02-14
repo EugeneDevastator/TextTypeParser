@@ -50,7 +50,7 @@ public static readonly string[] SKEWMAK_CYR = new string[]
         }
 
         var lt = new CharMatrix(SKEWMAK_CYR);
-        foreach (var c in lt.CoordsIterator)
+        foreach (var c in lt.CoordsList)
         {
             if (cyrtoen.ContainsKey(lt[c]))
             {

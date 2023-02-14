@@ -10,17 +10,17 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-      <PlatformTarget>x64</PlatformTarget>
+        <PlatformTarget>x64</PlatformTarget>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="morelinq" Version="3.3.2" />
-      <PackageReference Include="NumSharp" Version="0.30.0" />
+        <PackageReference Include="morelinq" Version="3.3.2"/>
+        <PackageReference Include="NumSharp" Version="0.30.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CharData\CharData.csproj" />
-      <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
+        <ProjectReference Include="..\CharData\CharData.csproj"/>
+        <ProjectReference Include="..\DataStorage\DataStorage.csproj"/>
     </ItemGroup>
 
 </Project>

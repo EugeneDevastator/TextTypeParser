@@ -7,6 +7,7 @@ namespace AnalyzerNext;
 public class CharMatrix
 {
     private char[,] _data= new char[0, 0];
+    private List<(byte x, byte y)> _flatCoords = new List<(byte x, byte y)>();
     public  char[,] Data => _data;
     public CharMatrix(string[] stringData)
     {
@@ -16,16 +17,30 @@ public class CharMatrix
     public CharMatrix(CharMatrix other)
     {
         _data = new char[other.Xdim, other.Ydim];
-        foreach (var (x,y) in CoordsIterator)
+
+        RegenerateCoords();
+        
+        foreach (var (x,y) in CoordsList)
         {
             _data[x, y] = other[x, y];
         }
     }
 
+    private void RegenerateCoords()
+    {
+        for (byte i = 0; i < Xdim; i++)
+        {
+            for (byte k = 0; k < Ydim; k++)
+            {
+                _flatCoords.Add((i, k));
+            }
+        }
+    }
+
     public void CopyDataFrom(CharMatrix other)
     {
-        _data = new char[other.Xdim, other.Ydim];
-        foreach (var (x,y) in CoordsIterator)
+        //_data = new char[other.Xdim, other.Ydim];
+        foreach (var (x,y) in CoordsList)
         {
             _data[x, y] = other[x, y];
         }
@@ -62,25 +77,16 @@ public class CharMatrix
         }
     }
 
-    public IEnumerable<(byte x, byte y)> CoordsIterator
+    public List<(byte x, byte y)> CoordsList
     {
-        get
-        {
-            for (byte i = 0; i < Xdim; i++)
-            {
-                for (byte k = 0; k < Ydim; k++)
-                {
-                    yield return (i, k);
-                }
-            }
-        }
+        get => _flatCoords;
     }
 
-    public IEnumerable<char> Flatten => CoordsIterator.Select(pos => _data[pos.x, pos.y]);
+    public List<char> Flatten => CoordsList.Select(pos => this[pos]).ToList();
     
     public void UpdateEach(Func<char, char> updater)
     {
-        foreach (var (x,y) in CoordsIterator)
+        foreach (var (x,y) in CoordsList)
         {
             _data[x, y] = updater(_data[x, y]);
         }

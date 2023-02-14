@@ -27,7 +27,7 @@ public class CachedSampler
 
     public void CacheLayouttoFill(CharMatrix emptyPlacesTemplate, char placeSymbol)
     {
-        foreach (var (x, y) in emptyPlacesTemplate.CoordsIterator)
+        foreach (var (x, y) in emptyPlacesTemplate.CoordsList)
         {
             if (!_weights.WeightedTargets.ContainsKey((x, y)))
                 continue;
@@ -42,7 +42,7 @@ public class CachedSampler
     }
     public void CacheLayoutNoSkipsOnly(CharMatrix unfilledTemplate, char skipSymbol)
     {
-        foreach (var (x, y) in unfilledTemplate.CoordsIterator)
+        foreach (var (x, y) in unfilledTemplate.CoordsList)
         {
             if (!_weights.WeightedTargets.ContainsKey((x, y)))
                 continue;

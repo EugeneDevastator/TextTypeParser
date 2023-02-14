@@ -49,7 +49,7 @@ public class EnumerableParser
 
         if (_parseParams.Flags.HasFlag(WorderFlags.IntelliSense))
             words.ForAll(w =>
-                GetIntellisenseWord(w, _symbols.AllProjectedLowerKeys.ToUpper().Distinct())
+                GetIntellisenseWord(w, _symbols.AllProjectedLowerKeys.ToUpper().Distinct().ToArray())
                     .Apply(GetAdjacencies)
                     .ForEach(WriteAdjacency));
                 

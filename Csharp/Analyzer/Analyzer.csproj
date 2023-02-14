@@ -7,20 +7,20 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Combinatorics" Version="2.0.0" />
-      <PackageReference Include="morelinq" Version="3.3.2" />
-      <PackageReference Include="NumSharp" Version="0.30.0" />
+        <PackageReference Include="Combinatorics" Version="2.0.0"/>
+        <PackageReference Include="morelinq" Version="3.3.2"/>
+        <PackageReference Include="NumSharp" Version="0.30.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CharData\CharData.csproj" />
-      <ProjectReference Include="..\Parser\Parser.csproj" />
+        <ProjectReference Include="..\CharData\CharData.csproj"/>
+        <ProjectReference Include="..\Parser\Parser.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Generator" />
-      <Folder Include="Layout" />
-      <Folder Include="Sampler" />
+        <Folder Include="Generator"/>
+        <Folder Include="Layout"/>
+        <Folder Include="Sampler"/>
     </ItemGroup>
 
 </Project>

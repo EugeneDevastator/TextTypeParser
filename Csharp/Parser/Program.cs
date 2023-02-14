@@ -9,5 +9,5 @@ using System.Text;
 Console.OutputEncoding = Encoding.UTF8;
 
 var data = new PocoDatacontainer();
-var parser = new EnumerableParser(data, Sources.Cyrilic);
+var parser = new EnumerableParser(data, Sources.RiderEN);
 parser.Parse();

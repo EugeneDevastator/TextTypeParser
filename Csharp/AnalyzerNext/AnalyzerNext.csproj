@@ -5,17 +5,17 @@
         <TargetFramework>net6.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-	<TargetFramework>net6.0-windows</TargetFramework>
-	<UseWindowsForms>true</UseWindowsForms>
+        <TargetFramework>net6.0-windows</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
+        <ProjectReference Include="..\DataStorage\DataStorage.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Combinatorics" Version="2.0.0" />
-      <PackageReference Include="morelinq" Version="3.3.2" />
+        <PackageReference Include="Combinatorics" Version="2.0.0" />
+        <PackageReference Include="morelinq" Version="3.3.2" />
     </ItemGroup>
 
 </Project>

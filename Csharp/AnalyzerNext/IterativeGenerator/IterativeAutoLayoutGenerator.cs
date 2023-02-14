@@ -7,7 +7,6 @@ using static AnalyzerUtils.Constants;
 namespace AnalyzerNext;
 
 // note: to find which keys to dupe do layout parsing with dropput and without minor keys (which should not be duped anyway)
-
 public class IterativeAutoLayoutGenerator
 {
     private CharMatrix _initialLayout;
@@ -15,21 +14,25 @@ public class IterativeAutoLayoutGenerator
     private LayoutConfig _config;
     private LayoutWeights _weights;
     private IDataContainer _data;
-    private List<KeyCoord> fillCoords = new List<KeyCoord>();
+    private ConcurrentPool<CharMatrix> _fillPool;
+    
     private char[] _nonCharacters;
     private char[] _skip;
     private string[] _lines;
     private string _layoutFileName;
     private int _replacementsMax;
     private string _fixedChars;
+    private string _forcedChars;
 
     public IterativeAutoLayoutGenerator(LayoutWeights weights,
         LayoutConfig config, 
         IDataContainer data,
         string layoutFileName,
         int replacementsMax,
-        string fixedChars)
+        string fixedChars,
+        string forcedChars = "")
     {
+        _forcedChars = forcedChars;
         _fixedChars = fixedChars;
         _replacementsMax = replacementsMax;
         _layoutFileName = layoutFileName;
@@ -50,16 +53,22 @@ public class IterativeAutoLayoutGenerator
         _toFillLayout.ReplaceAllWithOne(EMPTY, TOFILL);
         _toFillLayout.ReplaceAllWithOne(_nonCharacters, IGNORE);
 
-
+        var layoutDupes = _toFillLayout.Flatten.Distinct().Where(f => _toFillLayout.Flatten.Count(k => k == f) > 1)
+            .ToArray();
+        
         //return;
         var missing = _data.SymbolMap.DistinctLowerKeys.SubtractElementWise(_toFillLayout.Flatten);
         var worst = sampler
             .GetNWorstKeys(_replacementsMax, _initialLayout, _fixedChars, "_*^", _data.SymbolMap.DistinctLowerKeys)
             .ToArray();
-        var toplace = missing.Concat(worst).ToList();
+        var toplace = 
+            string.IsNullOrEmpty(_forcedChars) 
+            ? missing.Concat(worst).SubtractElementWise(layoutDupes).ToList()
+            : _forcedChars.ToArray().ToList();
+        
         var realLimit = Math.Min(toplace.Count, _replacementsMax);
         var keysToInsert = toplace.Take(realLimit).ToList();
-
+        Console.WriteLine($"to insert:"+new string(keysToInsert.ToArray()));
         //worst = _data.CountPerKey.
         //    Where(k=>missing.Contains(k.Key))
         //    .OrderByDescending(k => k.Value)
@@ -71,11 +80,11 @@ public class IterativeAutoLayoutGenerator
 
         Console.WriteLine(_toFillLayout);
         sampler.CacheLayoutNoSkipsOnly(_toFillLayout, IGNORE);
-        var layoutDupes = _toFillLayout.Flatten.Distinct().Where(f => _toFillLayout.Flatten.Count(k => k == f) > 1)
-            .ToArray();
+
+        
         sampler.ListOrderedWeights(_initialLayout,
             _data.SymbolMap.DistinctLowerKeys.SubtractElementWise(layoutDupes));
-        var fillCoords = _toFillLayout.CoordsIterator.Where(c => _toFillLayout[c] == TOFILL).ToArray();
+        (byte x, byte y)[] fillCoords = _toFillLayout.CoordsList.Where(c => _toFillLayout[c] == TOFILL).ToArray();
 
         var diff = fillCoords.Length - keysToInsert.Count;
         if (diff > 0)
@@ -102,31 +111,32 @@ public class IterativeAutoLayoutGenerator
 
             object Locker = "";
 
-            perms.AsParallel().Select(p =>
+
+            _fillPool = new ConcurrentPool<CharMatrix>(() => new CharMatrix(_initialLayout));
+            perms.AsParallel()
+                .ForAll(p =>
                 {
-                    var sl = new CharMatrix(_initialLayout);
-                    foreach (var c in p.Zip(fillCoords))
+                    var tempLayout =_fillPool.GetObject();
+                    for (var i = 0; i < fillCoords.Length; i++)
                     {
-                        sl[c.Second.x, c.Second.y] = c.First;
+                        tempLayout[fillCoords[i]] = p[i];
                     }
 
-                    var score = sampler.Sample(sl, ref samplingWhiteList);
-                    return (sl, score);
-                })
-                .ForAll(r =>
-                {
-                    if (r.score < minScore)
+                    var score = sampler.Sample(tempLayout, ref samplingWhiteList);
+                    
+                    if (score < minScore)
                     {
                         lock (Locker)
                         {
-                            if (r.score < minScore)
+                            if (score < minScore)
                             {
-                                minScore = r.score;
-                                bestLayout.CopyDataFrom(r.sl);
+                                minScore = score;
+                                bestLayout.CopyDataFrom(tempLayout);
                                 Console.WriteLine(minScore);
                             }
                         }
                     }
+                    _fillPool.PutObject(tempLayout);
                 });
 
             //foreach (var perm in perms.AsParallel())
@@ -150,7 +160,7 @@ public class IterativeAutoLayoutGenerator
             //}
         }
 
-        foreach (var c in bestLayout.CoordsIterator)
+        foreach (var c in bestLayout.CoordsList)
         {
             if (bestLayout[c] == IGNORE && _initialLayout[c] != bestLayout[c])
                 bestLayout[c] = _initialLayout[c];

@@ -10,7 +10,7 @@ public class LayoutGenerator
     public char[,] GeneratedLayout;
     private LayoutConfig _layout;
     private IDataContainer _data;
-
+    private ConcurrentPool<CharMatrix> _charFillPool;
     public LayoutGenerator(Sampler sampler, LayoutConfig layout, IDataContainer data)
     {
         _data = data;

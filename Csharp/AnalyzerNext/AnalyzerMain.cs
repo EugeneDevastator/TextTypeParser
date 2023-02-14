@@ -8,7 +8,7 @@ using Combinatorics.Collections;
 using MoreLinq;
 using MoreLinq.Extensions;
 
-Console.OutputEncoding=Encoding.UTF8;
+Console.OutputEncoding = Encoding.UTF8;
 var transformer = new LayoutTransformer();
 transformer.PrintShuffeledSkewmakForStdCyr();
 //return;
@@ -18,7 +18,7 @@ var w = new LayoutWeights();
 
 Console.OutputEncoding = Encoding.UTF8;
 
-var source = Sources.Cyrilic;
+var source = Sources.RiderEN;
 var layout = new LayoutConfig();
 var data = new PocoDatacontainer();
 data.LoadFromFolder(source.DataPath, 0.2f);
@@ -29,8 +29,17 @@ Console.WriteLine(all.Count());
 //data.ShowCharsByCount();
 //data.ShowKeysBySummedAdjacency( "арнтсиео"); return;
 
-var iterator = new IterativeAutoLayoutGenerator(new LayoutWeights(), layout, data, iterPath, 12,
-    "арнтсиео");
+var iterator = new IterativeAutoLayoutGenerator(
+    new LayoutWeights(),
+    layout,
+    data,
+    iterPath,
+    14,
+    //"арнтсиео"
+    $"arstnieo"
+    //"jxwzq"
+    );
+    
 iterator.Generate();
 return;
 

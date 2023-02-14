@@ -51,7 +51,7 @@ public class IterativeLayoutGenerator
 
 
         var keysToInsert = new List<char>();
-        foreach (var (x, y) in _initialLayout.CoordsIterator)
+        foreach (var (x, y) in _initialLayout.CoordsList)
         {
             if (_toFillLayout[x, y] == TOFILL)
             {
@@ -109,7 +109,7 @@ public class IterativeLayoutGenerator
             }
         }
         
-        foreach (var c in bestLayout.CoordsIterator)
+        foreach (var c in bestLayout.CoordsList)
         {
             if (bestLayout[c] == IGNORE && _initialLayout[c] != bestLayout[c])
                 bestLayout[c] = _initialLayout[c];

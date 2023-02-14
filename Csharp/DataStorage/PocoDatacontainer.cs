@@ -68,7 +68,6 @@ public class PocoDatacontainer : IDataContainer
         File.WriteAllText(Path.Combine(folder,KeySetData),_symbolMap.DistinctLowerKeys);
 
         var language = new Language() { Visuals = _symbolMap.AllVisualSymbols, Keys = _symbolMap.AllProjectedLowerKeys };
-        var serialized = JsonSerializer.Serialize(language);
         language.Write(Path.Combine(folder,LanguageData));
 
         _keys = _symbolMap.DistinctLowerKeys;

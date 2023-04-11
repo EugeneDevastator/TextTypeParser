@@ -111,7 +111,9 @@ public class IterativeAutoLayoutGenerator
 
             object Locker = "";
 
-
+            //TODO: it fails with lage number of perms, due to enumerable limitation,
+            //so it must be split into two or more nested loops.
+            
             _fillPool = new ConcurrentPool<CharMatrix>(() => new CharMatrix(_initialLayout));
             perms.AsParallel()
                 .ForAll(p =>

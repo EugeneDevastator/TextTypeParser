@@ -2,7 +2,7 @@
 
 public static class CharListExtenions
 {
-    public static IEnumerable<(char a, char b)> CroosProduct(this IEnumerable<char> self, IEnumerable<char> other)
+    public static IEnumerable<(char a, char b)> CrossProduct(this IEnumerable<char> self, IEnumerable<char> other)
     {
         foreach (var c in self)
         {

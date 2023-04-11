@@ -3,7 +3,8 @@ using System.Text;
 using MoreLinq;
 using NumSharp;
 
-public class ParserNext
+[Obsolete]
+public class ParserWithWordSplitter
 {
     
     /// TODO:
@@ -23,7 +24,7 @@ public class ParserNext
     private IDataContainer _data;
     private ParseParams _parseParams;
 
-    public ParserNext(IDataContainer data, ParseParams parseParams)
+    public ParserWithWordSplitter(IDataContainer data, ParseParams parseParams)
     {
         _parseParams = parseParams;
         _data = data;

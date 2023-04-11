@@ -6,6 +6,7 @@ using static AnalyzerUtils.Constants;
 
 namespace AnalyzerNext;
 
+[Obsolete]
 public class IterativeLayoutGenerator
 {
     private CharMatrix _initialLayout;

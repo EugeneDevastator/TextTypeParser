@@ -1,10 +1,14 @@
 # Avalanche Layout
 
-Avalanche layout oriented for csharp programming.
+Avalanche layout oriented for CSharp programming, based on few well known repositories for unity plugins and some of my internal projects.
 
 # Foreword
 
 F-row is beyond scope of the description. when i refer to upper keys i mean topmost colored row QXGKC...
+
+You can find Vial layout in the same folder with this readme documentation.
+
+
 
 **Main Layout:**
 
@@ -23,18 +27,23 @@ F-row is beyond scope of the description. when i refer to upper keys i mean topm
 ## Key hints.
 
 1. Both Enters are higher than surrounding keys, so you bump into them to be sure it is what you want.
-2. Index and Thumb main keys are keys with small bumps to place your hands preciesly. (F and J in std qwerty keyboard)
+
+2. Index and Thumb main keys are keys with small bumps to place your hands precisely. (F and J in std qwerty keyboard)
+
 3. Upper keys are flipped to be as close as possible to central row.
+
 4. Esc and Win keys are larger for easy hitting.
+
+   Here is sample screenshot, mind that keys on the letters dont correspond to the layout, and most of the time their height and flips are intentional.
 
 ![KeyHeight](KeyHeight.png)
 
 ## Artifacts
 
 1. J is duplicated, but most of the time left one is used. right one can be adjusted.
-2. F14 and M9 are used to switch between Cyrillic layouts. See ahk script for that purpose.
+2. F14 and M9 are used to switch between Cyrillic layouts. See AHK script for that purpose.
 3. MO3 on left side is used to swiftly delete or backspace with left hand.
-4. K and D can be swapped, but for some reasons D combbines better with other letters in down positions.
+4. K and D can be swapped, but for some reasons D combines better with other letters in down positions.
 
 # Other Layouts
 

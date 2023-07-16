@@ -3,39 +3,45 @@ using AnalyzerUtils;
 
 namespace AnalyzerNext;
 
-public class Sturct2D<T> where T : struct, IEquatable<T>
+public class Struct2D<T> where T : struct, IEquatable<T>
 {
-    private T[,] _data= new T[0, 0];
-    private List<(byte x, byte y)> _flatCoords = new List<(byte x, byte y)>();
-    public  T[,] Data => _data;
+    private readonly T[,] _data;
+    private readonly (byte x, byte y)[] _flatCoords;
 
-    public Sturct2D(Sturct2D<T> other)
+    public T[,] Data => _data;
+    public byte Xdim => (byte)_data.GetLength(0);
+    public byte Ydim => (byte)_data.GetLength(1);
+    public (byte x, byte y)[] CoordsArray => _flatCoords;
+    public List<T> Flatten => CoordsArray.Select(pos => this[pos]).ToList();
+
+
+    public Struct2D(int width, int height)
     {
-        _data = new T[other.Xdim, other.Ydim];
-
-        RegenerateCoords();
-        
-        foreach (var (x,y) in CoordsList)
-        {
-            _data[x, y] = other[x, y];
-        }
+        _data = new T[width, height];
+        _flatCoords = GenerateCoords().ToArray();
     }
 
-    private void RegenerateCoords()
+    public Struct2D(Struct2D<T> other) : this(other.Xdim, other.Ydim)
+    {
+        foreach (var (x, y) in _flatCoords)
+            _data[x, y] = other[x, y];
+    }
+
+    private IEnumerable<(byte x, byte y)> GenerateCoords()
     {
         for (byte i = 0; i < Xdim; i++)
         {
             for (byte k = 0; k < Ydim; k++)
             {
-                _flatCoords.Add((i, k));
+                yield return (i, k);
             }
         }
     }
 
-    public void CopyDataFrom(Sturct2D<T> other)
+    public void CopyDataFrom(Struct2D<T> other)
     {
         //_data = new char[other.Xdim, other.Ydim];
-        foreach (var (x,y) in CoordsList)
+        foreach (var (x,y) in CoordsArray)
         {
             _data[x, y] = other[x, y];
         }
@@ -56,20 +62,10 @@ public class Sturct2D<T> where T : struct, IEquatable<T>
         get => this[c.x, c.y];
         set => this[c.x, c.y] = value;
     }
-
-    public byte Xdim => (byte)_data.GetLength(0);
-    public byte Ydim => (byte)_data.GetLength(1);
-    
-    public List<(byte x, byte y)> CoordsList
-    {
-        get => _flatCoords;
-    }
-
-    public List<T> Flatten => CoordsList.Select(pos => this[pos]).ToList();
     
     public void UpdateEach(Func<T, T> updater)
     {
-        foreach (var (x,y) in CoordsList)
+        foreach (var (x,y) in CoordsArray)
         {
             _data[x, y] = updater(_data[x, y]);
         }

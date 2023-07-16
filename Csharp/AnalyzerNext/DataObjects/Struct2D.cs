@@ -3,11 +3,11 @@ using AnalyzerUtils;
 
 namespace AnalyzerNext;
 
-public class Struct2D<T> where T : struct, IEquatable<T>
+public class Struct2D<T>
+    where T : struct, IEquatable<T>
 {
     private readonly T[,] _data;
     private readonly (ushort x, ushort y)[] _flatCoords;
-
 
     public Struct2D(ushort width, ushort height)
     {
@@ -15,16 +15,21 @@ public class Struct2D<T> where T : struct, IEquatable<T>
         _flatCoords = GenerateCoords().ToArray();
     }
 
-    public Struct2D(Struct2D<T> other) : this(other.Xdim, other.Ydim)
+    public Struct2D(Struct2D<T> other)
+        : this(other.Xdim, other.Ydim)
     {
         foreach (var (x, y) in _flatCoords)
             _data[x, y] = other[x, y];
     }
 
     public T[,] Data => _data;
+
     public ushort Xdim => (ushort)_data.GetLength(0);
+
     public ushort Ydim => (ushort)_data.GetLength(1);
+
     public (ushort x, ushort y)[] CoordsArray => _flatCoords;
+
     public List<T> Flatten => CoordsArray.Select(pos => this[pos]).ToList();
 
     public T this[int x, int y]
@@ -33,19 +38,19 @@ public class Struct2D<T> where T : struct, IEquatable<T>
         set => _data[x, y] = value;
     }
 
-    public T this[KeyCoord c]      
+    public T this[KeyCoord c]
     {
         get => this[c.x, c.y];
         set => this[c.x, c.y] = value;
     }
 
-    public T this[(ushort x, ushort y) c]     
+    public T this[(ushort x, ushort y) c]
     {
         get => this[c.x, c.y];
         set => this[c.x, c.y] = value;
     }
 
-    public static Struct2D<T> Map<TRead>((ushort x, ushort y) end,Func<int,int,TRead> getter, Func<TRead,T> mapper)
+    public static Struct2D<T> Map<TRead>((ushort x, ushort y) end, Func<int, int, TRead> getter, Func<TRead, T> mapper)
     {
         return Map((0, 0), end, getter, mapper);
     }
@@ -78,7 +83,7 @@ public class Struct2D<T> where T : struct, IEquatable<T>
     public void CopyDataFrom(Struct2D<T> other)
     {
         //_data = new char[other.Xdim, other.Ydim];
-        foreach (var (x,y) in CoordsArray)
+        foreach (var (x, y) in CoordsArray)
         {
             _data[x, y] = other[x, y];
         }
@@ -86,7 +91,7 @@ public class Struct2D<T> where T : struct, IEquatable<T>
 
     public void UpdateEach(Func<T, T> updater)
     {
-        foreach (var (x,y) in CoordsArray)
+        foreach (var (x, y) in CoordsArray)
         {
             _data[x, y] = updater(_data[x, y]);
         }
@@ -94,12 +99,12 @@ public class Struct2D<T> where T : struct, IEquatable<T>
 
     public void ReplaceManyWithOne(T[] find, T replace)
     {
-        UpdateEach(c=> find.Contains(c) ? replace : c);
+        UpdateEach(c => find.Contains(c) ? replace : c);
     }
 
     public void ReplaceAllWithOne(T find, T replace)
     {
-        UpdateEach(c=> c.Equals(find) ? replace : c);
+        UpdateEach(c => c.Equals(find) ? replace : c);
     }
 
     public override string ToString()

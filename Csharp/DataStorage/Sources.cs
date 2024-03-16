@@ -13,7 +13,7 @@
     public static ParseParams RiderEN_Simple = new ParseParams()
     {
         ParsingPath = Path.Combine(WorkingFolder,"toparse_rider"),
-        DataPath = Path.Combine(WorkingFolder,"d:\\1\\PARSED_EN_S"),
+        DataPath = Path.Combine(WorkingFolder,"PARSED_EN_S"),
         Flags = 0 | WorderFlags.SimpleText,
         Languages = new []{ new LanguageEn() }
     };

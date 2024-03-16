@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnalyzerNext", "AnalyzerNex
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStorage", "DataStorage\DataStorage.csproj", "{00BE2419-7C73-4324-9ECA-D73CFBD0A257}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CharData", "CharData\CharData.csproj", "{B2E4069C-FB95-4D9A-8754-7D05DC4EB607}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{00BE2419-7C73-4324-9ECA-D73CFBD0A257}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00BE2419-7C73-4324-9ECA-D73CFBD0A257}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00BE2419-7C73-4324-9ECA-D73CFBD0A257}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2E4069C-FB95-4D9A-8754-7D05DC4EB607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2E4069C-FB95-4D9A-8754-7D05DC4EB607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2E4069C-FB95-4D9A-8754-7D05DC4EB607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2E4069C-FB95-4D9A-8754-7D05DC4EB607}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

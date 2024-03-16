@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Text;
+using System.Security.Cryptography.X509Certificates;
 using AnalyzerUtils;
 using MoreLinq.Extensions;
 using static AnalyzerUtils.Utils;
@@ -10,16 +11,16 @@ public class LayoutWeights
     {
         "_GRMIN",
         "QPrmin",
-        "Ypdcba",
+        "Ypdcba", 
     };
 
     private (float w, string pairs)[] pairSets = new[]
     {
-        (0.8f, $"mc,ib,iI"),
-        (1f, $"rR,mM,in,pP"),
-        (1.5f, $"rd,ba,IN,nN,RP,na,In,ia"), //rd is a shitty move anyway.
-        (3f, $"pY,Mc,Ib,Ia,Nb,Na,iN,pQ,QY,PY,Pd,PG,dI"),
-        (4f, $"Rc,Gp,Gd,Gm,RG,Gr,Rp,Rd"),
+        (0.8f, $"rR,mM,pP,in,Ii"),
+        (1f, $"mc,ib"),
+        (1.5f, $"rd,ba,IN,nN,na,In,cb"), //rd is a shitty move anyway.
+        (3f, $"pY,Mc,Ib,Ia,Nb,Na,iN,pQ,QY,PY,Pd,PG,ia"),
+        (4f, $"Rc,Gp,Gd,Gm,RG,Gr,Rp,Rd,Id"),
     };
 
     public Dictionary<KeyCoord, List<KeyCoord>> WeightedTargets = new Dictionary<KeyCoord, List<KeyCoord>>(); 
@@ -83,7 +84,7 @@ public class LayoutWeights
                 .AddRange(WeightedTargets[pos]
                     .Select(GetMirroredCoord));
         }
-
+        
         int a = 1;
     }
 }

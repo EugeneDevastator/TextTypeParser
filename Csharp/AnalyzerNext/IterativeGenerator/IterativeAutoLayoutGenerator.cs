@@ -57,7 +57,7 @@ public class IterativeAutoLayoutGenerator
             .ToArray();
         
         //return;
-        var missing = _data.SymbolMap.DistinctLowerKeys.SubtractElementWise(_toFillLayout.Flatten);
+        var missing = _data.SymbolMap.DistinctLowerKeys.SubtractElementWise(_toFillLayout.Flatten).OrderByDescending(k=>_data.GetKeyCount(k));
         var worst = sampler
             .GetNWorstKeys(_replacementsMax, _initialLayout, _fixedChars, "_*^", _data.SymbolMap.DistinctLowerKeys)
             .ToArray();
@@ -98,7 +98,11 @@ public class IterativeAutoLayoutGenerator
         var samplingWhiteList = _data.SymbolMap.DistinctLowerKeys.SubtractElementWise(skipsAndDupes).ToArray();
 
         var minScore = sampler.Sample(bestLayout, ref samplingWhiteList);
-
+        
+        //edge case
+        //if (minScore < 100)
+        //    minScore = int.MaxValue;
+        
         Console.WriteLine($"current score:{minScore}");
 
         var charsToSkip = new Combinations<char>(toplace, 0, GenerateOption.WithoutRepetition);

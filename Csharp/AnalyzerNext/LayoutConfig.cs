@@ -19,9 +19,9 @@ public class LayoutConfig
         //"_*****_*****_",
         //"_*rst*_*nei*_",
         //"*a****_****o*",
-        "******_******",
-        "***s**_**ie**",
-        "*a*c**_****o*",
+        "__****_****_-",
+        "_*rst*_*nie*_",
+        "_a________*o_",
     };
     
     public string PriorityKeysAscending = "0123456789ABCDEF";
